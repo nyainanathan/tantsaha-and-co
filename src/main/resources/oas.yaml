@@ -186,6 +186,45 @@ paths:
                 type: array
                 items: 
                   $ref: '#/components/schemas/Activite'
+  /collectivity/{id}/activites/{activiteId}:
+    get:
+      summary: Obtenir info sur une activite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/ActiviteId'
+      responses:
+        200:
+          description: Activite demandee
+          content:
+            application/json:
+              schema:  
+                $ref: '#/components/schemas/Activite'
+    patch:
+      summary: Mettre a jour une activite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/ActiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActiviteUpdate'
+      responses:
+        200:
+          description: Activite mise a jour
+          content:
+            application/json:
+              schema:  
+                $ref: '#/components/schemas/Activite'
+    delete:
+      summary: Supprimer une activite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/ActiviteId'
+      responses:
+        204:
+          description: Activite supprimee
 
 components:
   parameters:
@@ -204,6 +243,12 @@ components:
 
     MembreId:
       name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    ActiviteId:
+      name: activiteId
       in: path
       required: true
       schema:
@@ -275,6 +320,25 @@ components:
             type: integer
             example: 1
 
+    ActiviteUpdate:
+      type: object
+      properties:
+        titre:
+          type: string
+          example: 'Reunion'
+        type: 
+          $ref: '#/components/schemas/ActiviteType'
+        estOuvertATous:
+          type: boolean
+        obligatoirePour:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        date:
+          type: string
+          format: date
+        recurrence: 
+          $ref: '#/components/schemas/ActiviteRecurrence'
 
     PaiementCreation:
       type: object
