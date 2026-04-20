@@ -63,6 +63,8 @@ paths:
           description: Membre ajoute
         400:
           $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
 
   /collectivity/{id}/cotisations:
     post: 
@@ -84,6 +86,8 @@ paths:
                 $ref: '#/components/schemas/Cotisation'
         400:
           $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
     get:
       summary: obtenir des infos sur toues les cotisations
       parameters:
@@ -97,6 +101,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Cotisation'
+        404:
+          $ref: '#/components/responses/NotFound'
   /collectivity/{id}/cotisations/{cotisationId}:
       get:
         summary: Obtenir info sur une cotisation
@@ -110,6 +116,8 @@ paths:
               application/json:
                 schema:  
                   $ref: '#/components/schemas/Cotisation'
+          404:
+            $ref: '#/components/responses/NotFound'
       patch:
         summary: Mettre a jour une cotisation
         parameters:
@@ -128,6 +136,10 @@ paths:
               application/json:
                 schema:  
                   $ref: '#/components/schemas/Cotisation'
+          400:
+            $ref: '#/components/responses/BadRequest'
+          404:
+            $ref: '#/components/responses/NotFound'
       delete:
         summary: Supprimer une cotisation
         parameters:
@@ -136,6 +148,10 @@ paths:
         responses:
           204:
             description: Cotisation supprimee
+          400:
+            $ref: '#/components/responses/BadRequest'
+          404:
+            $ref: '#/components/responses/NotFound'
   /collectivity/{id}/paiements:
     post:
       summary: creer un nouveau paiementType
@@ -154,6 +170,10 @@ paths:
             application/json:
               schema: 
                 $ref: '#/components/schemas/Paiement'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
 
   /collectivity/{id}/activites:
     post: 
@@ -173,6 +193,10 @@ paths:
             application/json:
               schema: 
                 $ref: '#/components/schemas/Activite'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
     get:
       summary: Lister toutes les activites de la collectivites 
       parameters:
@@ -186,6 +210,8 @@ paths:
                 type: array
                 items: 
                   $ref: '#/components/schemas/Activite'
+        404:
+          $ref: '#/components/responses/NotFound'
   /collectivity/{id}/activites/{activiteId}:
     get:
       summary: Obtenir info sur une activite
@@ -199,6 +225,8 @@ paths:
             application/json:
               schema:  
                 $ref: '#/components/schemas/Activite'
+        404:
+          $ref: '#/components/responses/NotFound'
     patch:
       summary: Mettre a jour une activite
       parameters:
@@ -217,6 +245,10 @@ paths:
             application/json:
               schema:  
                 $ref: '#/components/schemas/Activite'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
     delete:
       summary: Supprimer une activite
       parameters:
@@ -225,6 +257,10 @@ paths:
       responses:
         204:
           description: Activite supprimee
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
 
 components:
   parameters:
@@ -260,6 +296,11 @@ components:
       content:
         text/plain:
           example: "Erreur de validation"
+    NotFound:
+      description: Ressource non trouvee
+      content:
+        text/plain:
+          example: "Ressource non trouvee"
 
   schemas:
     
