@@ -365,6 +365,69 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
+  /collectivity/{id}/activites/{activiteId}/presences:
+#    post:
+#      tags:
+#        - Activites
+#      summary: Enregistrer la presence d'un membre
+#      parameters:
+#        - $ref: '#/components/parameters/CollectiviteId'
+#        - $ref: '#/components/parameters/ActiviteId'
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/PresenceCreation'
+#      responses:
+#        201:
+#          description: Presence enregistree
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Presence'
+#        400:
+#          $ref: '#/components/responses/BadRequest'
+#        404:
+#          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Activites
+      summary: Enregistrer la feuille de presence d'une activite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/ActiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresenceBatchCreation'
+      responses:
+        201:
+          description: Feuille de presence enregistree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresenceBatch'
+
+    get:
+      tags:
+        - Activites
+      summary: Liste des presences d'une activite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/ActiviteId'
+      responses:
+        200:
+          description: Liste des presences
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Presence'
+
 components:
   parameters:
     CollectiviteId:
@@ -762,3 +825,74 @@ components:
           enum: [ ORANGE_MONEY, MVOLA, AIRTEL_MONEY ]
         telephone:
           type: string
+
+    PresenceCreation:
+      oneOf:
+        - $ref: '#/components/schemas/PresenceInterne'
+        - $ref: '#/components/schemas/PresenceExterne'
+
+    PresenceInterne:
+      type: object
+      required:
+        - membreId
+        - present
+      properties:
+        membreId:
+          type: integer
+          example: 1
+        present:
+          type: boolean
+        excuse:
+          type: boolean
+        motif:
+          type: string
+    PresenceExterne:
+      type: object
+      required:
+        - nom
+        - prenom
+        - present
+      properties:
+        nom:
+          type: string
+          example: "Ania"
+        prenom:
+          type: string
+          example: "Su"
+        collectiviteOrigine:
+          type: string
+          example: "Collectivite vinland saga"
+        present:
+          type: boolean
+
+    Presence:
+      allOf:
+        - $ref: '#/components/schemas/PresenceCreation'
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            statut:
+              type: string
+              enum:
+                - INTERNE
+                - EXTERNE
+
+    PresenceBatchCreation:
+      type: object
+      properties:
+        presences:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenceCreation'
+
+    PresenceBatch:
+      type: object
+      properties:
+        activiteId:
+          type: integer
+        presences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Presence'
