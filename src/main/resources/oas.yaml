@@ -14,6 +14,8 @@ tags:
     description: Operations liees aux paiements
   - name: Activites
     description: Operations liees aux activites
+  - name: Tresorerie
+    description: Operations liees aux comptes de tresorerie
 
 servers:
   - url: 'http://localhost:8080'
@@ -81,6 +83,67 @@ paths:
           description: Membre ajoute
         400:
           $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /collectivity/{id}/accounts:
+    get:
+      tags:
+        - Tresorerie
+      summary: Lister les comptes d'une collectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      responses:
+        200:
+          description: Liste des comptes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Compte'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags:
+        - Tresorerie
+      summary: Creer un compte pour une collectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompteCreation'
+      responses:
+        201:
+          description: Compte cree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Compte'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /collectivity/{id}/accounts/{accountId}:
+    get:
+      tags:
+        - Tresorerie
+      summary: Obtenir un compte
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/AccountId'
+      responses:
+        200:
+          description: Compte trouve
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Compte'
         404:
           $ref: '#/components/responses/NotFound'
 
@@ -330,6 +393,13 @@ components:
       schema:
         type: integer
 
+    AccountId:
+      name: accountId
+      in: path
+      required: true
+      schema:
+        type: integer
+
   responses:
     BadRequest:
       description: Requete invalide
@@ -479,7 +549,6 @@ components:
         - ACTIVITE
         - FORMATION
         - AUTRE
-    
     CollectiviteBaseComponent:
       type: object
       properties:
@@ -627,3 +696,69 @@ components:
         montant:
           type: number
           example: 4000
+
+    CompteCreation:
+      oneOf:
+        - $ref: '#/components/schemas/CaisseCreation'
+        - $ref: '#/components/schemas/CompteBancaireCreation'
+        - $ref: '#/components/schemas/CompteMobileMoneyCreation'
+    Compte:
+      allOf:
+        - oneOf:
+            - $ref: '#/components/schemas/CaisseCreation'
+            - $ref: '#/components/schemas/CompteBancaireCreation'
+            - $ref: '#/components/schemas/CompteMobileMoneyCreation'
+        - type: object
+          properties:
+            id:
+              type: integer
+            solde:
+              type: number
+    CaisseCreation:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [ CAISSE ]
+    CompteBancaireCreation:
+      type: object
+      required:
+        - type
+        - titulaire
+        - nomBanque
+        - numeroCompte
+      properties:
+        type:
+          type: string
+          enum: [ BANCAIRE ]
+        titulaire:
+          type: string
+        nomBanque:
+          type: string
+          enum: [ BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM ]
+        numeroCompte:
+          type: string
+          description: "23 chiffres"
+          pattern: "^[0-9]{23}$"
+          example: "12345123451234512345123"
+
+    CompteMobileMoneyCreation:
+      type: object
+      required:
+        - type
+        - titulaire
+        - service
+        - telephone
+      properties:
+        type:
+          type: string
+          enum: [ MOBILE_MONEY ]
+        titulaire:
+          type: string
+        service:
+          type: string
+          enum: [ ORANGE_MONEY, MVOLA, AIRTEL_MONEY ]
+        telephone:
+          type: string
