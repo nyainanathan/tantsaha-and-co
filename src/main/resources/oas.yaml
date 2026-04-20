@@ -1,16 +1,35 @@
 openapi: 3.0.0
 info:
   title: Tantsaha & Co
-  description: Il s'agit d'une API REST pour gérer la communauté croissante de ceux qu'on appelle les « Tantsaha ».
+  description: Une API REST pour gérer la communauté croissante de ceux qu'on appelle les « Tantsaha ».
   version: 1.0.0
 servers:
   - url: 'http://localhost:8080'
 paths:
   /collectivity:
     post:
+      summary: Creer une nouvelle collectivite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/CollectiviteCreation'
+      responses:
+        201:
+          description: Collectivite cree avec succes
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Collectivite'
+        400:
+          description: Echec dans le cas ou les conditions ne sont pas respectees
+          content:
+            text/plain:
+              example: "Vous devez avoir au moins 10 membres avec 5 d'une ancienete de 6 mois"
 components:
   schemas:
-    CollectiviteCreation:
+    CollectiviteBaseComponent:
       type: object
       properties:
         specialite:
@@ -19,13 +38,30 @@ components:
         ville:
           type: string
           example: 'Ambatondrazaka'
-        membres:
-          type: array
-          items:
-            $ref: '#/components/schemas/NouveauMembre'
-          minItems: 10
-        autorisation:
-          $ref: '#/components/schemas/Autorisation'
+    CollectiviteCreation:
+      allOf:
+        - $ref: '#/components/schemas/CollectiviteBaseComponent'
+        - type: object
+          properties:
+            autorisation:
+              $ref: '#/components/schemas/Autorisation'
+            membres:
+              type: array
+              items:
+                $ref: '#/components/schemas/NouveauMembre'
+              minItems: 10
+    Collectivite: 
+      allOf:
+        - $ref: '#/components/schemas/CollectiviteBaseComponent'
+        - type: object
+          properties:
+            nom:
+              type: string
+              example: 'COllectivite manioc du sud'
+            membres:
+              type: array
+              items: 
+                $ref: '#/components/schemas/Membre'
     NouveauMembre:
       type: object
       properties:
@@ -50,6 +86,15 @@ components:
           type: string
           format: email
           example: 'johndoe@gmail.com'
+    Membre:
+      allOf:
+        - $ref: '#/components/schemas/NouveauMembre'
+        - type: object
+          properties:
+            dateAdhesion:
+              type: string
+              format: date
+              example: '2026-04-20'
     Role:
       type: string
       enum:
