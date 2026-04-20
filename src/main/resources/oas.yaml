@@ -63,10 +63,108 @@ paths:
           description: Membre ajoute
         400:
           $ref: '#/components/responses/BadRequest'
+
+  /collectivity/{id}/cotisations:
+    post: 
+      summary: create a new cotisation to pay
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/CotisationCreation'
+      responses:
+        201:
+          description: Cotisation cree
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Cotisation'
+        400:
+          $ref: '#/components/responses/BadRequest'
+    get:
+      summary: obtenir des infos sur toues les cotisations
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      responses:
+        200:
+          description: Liste de toutes les cotisations
+          content:
+            application/json:
+              schema:  
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cotisation'
+  /collectivity/{id}/cotisations/{cotisationId}:
+      get:
+        summary: Obtenir info sur une cotisation
+        parameters:
+          - $ref: '#/components/parameters/CollectiviteId'
+          - $ref: '#/components/parameters/CotisationId'
+        responses:
+          200:
+            description: La collectivite
+            content:
+              application/json:
+                schema:  
+                  $ref: '#/components/schemas/Cotisation'
+      patch:
+        summary: Mettre a jour une cotisation
+        parameters:
+          - $ref: '#/components/parameters/CollectiviteId'
+          - $ref: '#/components/parameters/CotisationId'
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CotisationUpdate'
+        responses:
+          200:
+            description: cotisation mise a jour
+            content:
+              application/json:
+                schema:  
+                  $ref: '#/components/schemas/Cotisation'
+      delete:
+        summary: Supprimer une cotisation
+        parameters:
+          - $ref: '#/components/parameters/CollectiviteId'
+          - $ref: '#/components/parameters/CotisationId'
+        responses:
+          204:
+            description: Cotisation supprimee
+  /collectivity/{id}/paiements:
+    post:
+      summary: creer un nouveau paiementType
+      parameters:
+      - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/PaiementCreation'
+      responses:
+        201:
+          description: Paiement enregistere
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Paiement'
+
 components:
   parameters:
     CollectiviteId:
       name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    CotisationId:
+      name: cotisationId
       in: path
       required: true
       schema:
@@ -87,6 +185,64 @@ components:
           example: "Erreur de validation"
 
   schemas:
+    PaiementCreation:
+      type: object
+      properties:
+        membreId: 
+          type: integer
+          example: 1
+        montant:
+          type: number
+          format: decimal
+          minimum: 0
+          example: 67000
+        transactionType: 
+          $ref: "#/components/schemas/TransactionType"
+        transactionReference:
+          type: string
+          example: '20260420.1415MG'
+        destinataireId:
+          type: string
+          example: '034 12 345 67'
+        paiementType: 
+          $ref : '#/components/schemas/PaiementType'
+        description:
+          type: string
+          example: "Paiement d'adhesion noveau membre"
+        cotisationId:
+          type: integer
+          example: 1
+        activiteId: 
+          type: integer
+          example: 1
+    
+    Paiement: 
+      allOf:
+        - $ref: '#/components/schemas/PaiementCreation'
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+
+    TransactionType:
+      type: string
+      enum:
+        - CASH
+        - MOBILE_MONEY
+        - VIREMENT
+    
+    PaiementType: 
+      type: string
+      enum: 
+        - COTISATION_PERIODIQUE
+        - COTISATION_EXCEPTIONNELLE
+        - VERSEMENT_FEDERATION
+        - ADHESION 
+        - ACTIVITE
+        - FORMATION
+        - AUTRE
+    
     CollectiviteBaseComponent:
       type: object
       properties:
@@ -96,6 +252,7 @@ components:
         ville:
           type: string
           example: 'Ambatondrazaka'
+    
     CollectiviteCreation:
       allOf:
         - $ref: '#/components/schemas/CollectiviteBaseComponent'
@@ -108,6 +265,7 @@ components:
               items:
                 $ref: '#/components/schemas/NouveauMembre'
               minItems: 10
+    
     Collectivite: 
       allOf:
         - $ref: '#/components/schemas/CollectiviteBaseComponent'
@@ -120,6 +278,7 @@ components:
               type: array
               items: 
                 $ref: '#/components/schemas/Membre'
+    
     NouveauMembre:
       type: object
       properties:
@@ -144,6 +303,7 @@ components:
           type: string
           format: email
           example: 'johndoe@gmail.com'
+    
     Membre:
       allOf:
         - $ref: '#/components/schemas/NouveauMembre'
@@ -153,6 +313,7 @@ components:
               type: string
               format: date
               example: '2026-04-20'
+    
     Role:
       type: string
       enum:
@@ -162,6 +323,7 @@ components:
         - SECRETAIRE
         - CONFIRME
         - JUNIOR
+    
     Autorisation:
       type: object
       properties:
@@ -177,6 +339,7 @@ components:
           example: '2026-04-20'
         details:
           type: string
+    
     AdhesionMembre:
       type: object
       properties:
@@ -186,3 +349,44 @@ components:
         parrainId:
           type: integer
           example: 2
+    
+    CotisationCreation:
+      type: object
+      properties:
+        titre:
+          type: string
+          example: 'Maintenance infrastructure'
+        montant:
+          type: number
+          example: 15000
+        type:
+          $ref: '#/components/schemas/CotisationType'
+    
+    CotisationType:
+      type: string
+      enum:
+        - MENSUEL
+        - ANNUEL
+        - PONCTUEL
+    
+    Cotisation: 
+      allOf:
+        - $ref: '#/components/schemas/CotisationCreation'
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            commencerLe:
+              type: string
+              format: date
+    
+    CotisationUpdate:
+      type: object
+      properties:
+        titre:
+          type: string
+          example: 'Operation sandwiiich'
+        montant:
+          type: number
+          example: 4000
