@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  title: Tantsaha & Co
+  description: Il s'agit d'une API REST pour gérer la communauté croissante de ceux qu'on appelle les « Tantsaha ».
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /collectivity:
+    post:
+components:
+  schemas:
+    CollectiviteCreation:
+      type: object
+      properties:
+        specialite:
+          type: string
+          example: "Manioc"
+        ville:
+          type: string
+          example: 'Ambatondrazaka'
+        membres:
+          type: array
+          items:
+            $ref: '#/components/schemas/NouveauMembre'
+          minItems: 10
+        autorisation:
+          $ref: '#/components/schemas/Autorisation'
+    NouveauMembre:
+      type: object
+      properties:
+        nom:
+          type: string
+          example: 'John'
+        prenom:
+          type: string
+          example: 'Doe'
+        adresse:
+          type: string
+          example: 'LOT 67 BIS'
+        metier:
+          type: string
+          example: 'Agriculteur'
+        role: 
+          $ref: '#/components/schemas/Role'
+        telephone:
+          type: string
+          example: '032 01 234 56'
+        email:
+          type: string
+          format: email
+          example: 'johndoe@gmail.com'
+    Role:
+      type: string
+      enum:
+        - PRESIDENT
+        - VICE_PRESIDENT
+        - TRESORIER
+        - SECRETAIRE
+        - CONFIRME
+        - JUNIOR
+    Autorisation:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        titre:
+          type: string
+          example: 'Autorisation 2026/12/56'
+        dateCreation:
+          type: string
+          format: date
+          example: '2026-04-20'
+        details:
+          type: string
