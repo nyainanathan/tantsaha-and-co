@@ -27,7 +27,65 @@ paths:
           content:
             text/plain:
               example: "Vous devez avoir au moins 10 membres avec 5 d'une ancienete de 6 mois"
+
+  /members:
+    post:
+      summary: Creer un nouveau membre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NouveauMembre'
+      responses:
+        201:
+          description: Membre cree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membre'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+  /collectivity/{id}/members:
+    post:
+      summary: Ajouter un membre dans une collectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdhesionMembre'
+      responses:
+        201:
+          description: Membre ajoute
+        400:
+          $ref: '#/components/responses/BadRequest'
 components:
+  parameters:
+    CollectiviteId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    MembreId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  responses:
+    BadRequest:
+      description: Requete invalide
+      content:
+        text/plain:
+          example: "Erreur de validation"
+
   schemas:
     CollectiviteBaseComponent:
       type: object
@@ -119,3 +177,12 @@ components:
           example: '2026-04-20'
         details:
           type: string
+    AdhesionMembre:
+      type: object
+      properties:
+        membreId:
+          type: integer
+          example: 1
+        parrainId:
+          type: integer
+          example: 2
