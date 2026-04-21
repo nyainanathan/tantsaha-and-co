@@ -4,26 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-
-public class Member {
-    private int id;
-    private String firstName;
-    private String lastName;
-    private Date birthDate;
-    private Gender gender;
-    private String address;
-    private String profession;
-    private String phoneNumber;
-    private String email;
-    private MemberOccupation occupation;
-
+public class Member extends MemberInformation {
+    private String id;
     private List<Member> referees;
-    private Boolean registrationFeePaid;
-    private Boolean membershipDuesPaid;
 }
