@@ -603,6 +603,54 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
+  /federation/assiduitue:
+    get:
+      tags:
+        - Stats
+      summary: Le taux d'assiduite global de toutes les collectivites sur une periode donnee
+      parameters:
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Taux d'assiduite global pour toutes les collectivites
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteAssiduite'
+
+  /federation/membreAJour:
+    get:
+      tags:
+        - Stats
+      summary: Le taux de membres a jour dans leur paiement sur une periode donnee pour toutes les collectivites
+      parameters:
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Taux de membres a jour pour toutes les collectivites
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteMembreAJour'
+
+  /federation/nouveauMembres:
+    get:
+      tags:
+        - Stats
+      summary: Le nombre de nouveaux membres sur une periode donnee pour toutes les collectivites
+      parameters:
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Nombre de nouveaux membres pour toutes les collectivites sur cette periode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteNouveauMembres'
+
 components:
   parameters:
     CollectiviteId:
