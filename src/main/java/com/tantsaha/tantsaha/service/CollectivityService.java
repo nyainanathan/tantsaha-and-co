@@ -48,7 +48,7 @@ public class CollectivityService {
         }
 
         if(president != 1 || vicePresident != 1 || treasurer != 1 || secretary != 1){
-            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.")
+            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.");
         }
 
         List<Long> seniorityOfMembers = new ArrayList<>();
@@ -64,7 +64,7 @@ public class CollectivityService {
                 .toList().size();
 
         if(memberWithEnoughSeniority < 5){
-            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.")
+            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.");
         }
 
         Collectivity collectivity = this.collectivityRepository.createCollectivity(toSave);

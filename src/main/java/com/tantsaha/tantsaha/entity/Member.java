@@ -12,5 +12,5 @@ import java.util.List;
 @Getter
 public class Member extends MemberInformation {
     private String id;
-    private List<Member> referees;
+    private List<String> referees;
 }

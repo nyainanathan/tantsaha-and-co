@@ -31,6 +31,12 @@ public class MemberRepository {
                 WHERE id = ?
                 """;
 
+        String query1 = """
+                SELECT mentee_member_id
+                FROM mentor
+                WHERE mentor_member_id = ?
+                """;
+
         Member member = null;
 
         try{
@@ -51,6 +57,21 @@ public class MemberRepository {
                 member.setEmail(rs.getString("email"));
                 member.setOccupation(MemberOccupation.valueOf(rs.getString("occupation")));
             }
+
+            List<String> referees = new ArrayList<>();
+
+            PreparedStatement ps1 = conn.prepareStatement(query1);
+            ps1.setString(1, id);
+            ResultSet rs1 = ps1.executeQuery();
+
+            while(rs1.next()){
+                referees.add(
+                        rs1.getString("id")
+                );
+            }
+
+            assert member != null;
+            member.setReferees(referees);
         } catch (Exception e){
             throw new RuntimeException(e);
         }
