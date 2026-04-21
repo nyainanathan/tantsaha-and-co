@@ -1,6 +1,4 @@
-package com.tantsaha.tantsaha.repository;
-
-import javax.sql.DataSource;
+package com.tantsaha.tantsaha.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,2 +1,2 @@
 alter table collectivity
-drop column status;
+drop column profession;
