@@ -89,6 +89,81 @@ paths:
           $ref: '#/components/responses/BadRequest'
         404:
           $ref: '#/components/responses/NotFound'
+  /collectivity/{id}/applications:
+    post:
+      tags:
+        - Members
+      summary: Soumettre une candidature
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidatureCreation'
+      responses:
+        201:
+          description: Candidature soumise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Candidature'
+
+  /collectivity/{id}/applications/{applicationId}/validate:
+    post:
+      tags:
+        - Members
+      summary: Valider une candidature
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Candidature validee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Candidature'
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /collectivity/{id}/applications/{applicationId}/reject:
+    post:
+      tags:
+        - Members
+      summary: Refuser une candidature
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                motif:
+                  type: string
+                  example: "Parrains insuffisants"
+      responses:
+        200:
+          description: Candidature refusee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Candidature'
+        404:
+          $ref: '#/components/responses/NotFound'
+
 
   /collectivity/{id}/accounts:
     get:
@@ -493,10 +568,10 @@ paths:
                 format: double
         404:
           $ref: '#/components/responses/NotFound'
-  
+
   /collectivity/{id}/assiditue:
     get:
-      tags: 
+      tags:
         - Stats
       summary: Le taux d'assiduite total sur une periode donnes
       parameters:
@@ -516,7 +591,7 @@ paths:
 
   /collectivity/{id}/membreAJour:
     get:
-      tags: 
+      tags:
         - Stats
       summary: Le taux de membres a jour dans leur paiement sur une periode donnes
       parameters:
@@ -535,7 +610,7 @@ paths:
 
   /collectivity/{id}/nouveauMembres:
     get:
-      tags: 
+      tags:
         - Stats
       summary: Le nombre de nouveaux membres sur une periode donnes
       parameters:
@@ -631,14 +706,14 @@ components:
           type: number
           format: decimal
           example: 67.2
-          
+
     CollectiviteMembreAJour:
       type: object
       properties:
         totalMembre:
           type: integer
           example: 23
-        membreAJour: 
+        membreAJour:
           type: integer
           example: 12
         tauxAJour:
@@ -653,9 +728,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Membre'
-        total : 
+        total :
           type: integer
           example: 21
+
 
     ActiviteCreation:
       type: object
@@ -663,7 +739,7 @@ components:
         titre:
           type: string
           example: 'Reunion'
-        type: 
+        type:
           $ref: '#/components/schemas/ActiviteType'
         estOuvertATous:
           type: boolean
@@ -674,9 +750,9 @@ components:
         date:
           type: string
           format: date
-        recurrence: 
+        recurrence:
           $ref: '#/components/schemas/ActiviteRecurrence'
-    
+
     ActiviteType:
       type: string
       enum:
@@ -686,15 +762,15 @@ components:
 
     ActiviteRecurrence:
       type: object
-      properties: 
-        semaine: 
+      properties:
+        semaine:
           type: integer
           minimum: 1
           maximum: 5
         jour:
           $ref: '#/components/schemas/JourDeSemaine'
-    
-    JourDeSemaine: 
+
+    JourDeSemaine:
       type: string
       enum:
         - LUNDI
@@ -705,7 +781,7 @@ components:
         - SAMEDI
         - DIMANCHE
 
-    Activite: 
+    Activite:
       allOf:
         - $ref: '#/components/schemas/ActiviteCreation'
         - type: object
@@ -720,7 +796,7 @@ components:
         titre:
           type: string
           example: 'Reunion'
-        type: 
+        type:
           $ref: '#/components/schemas/ActiviteType'
         estOuvertATous:
           type: boolean
@@ -731,13 +807,13 @@ components:
         date:
           type: string
           format: date
-        recurrence: 
+        recurrence:
           $ref: '#/components/schemas/ActiviteRecurrence'
 
     PaiementCreation:
       type: object
       properties:
-        membreId: 
+        membreId:
           type: integer
           example: 1
         montant:
@@ -745,7 +821,7 @@ components:
           format: decimal
           minimum: 0
           example: 67000
-        transactionType: 
+        transactionType:
           $ref: "#/components/schemas/TransactionType"
         transactionReference:
           type: string
@@ -753,7 +829,7 @@ components:
         destinataireId:
           type: string
           example: '034 12 345 67'
-        paiementType: 
+        paiementType:
           $ref : '#/components/schemas/PaiementType'
         description:
           type: string
@@ -761,11 +837,11 @@ components:
         cotisationId:
           type: integer
           example: 1
-        activiteId: 
+        activiteId:
           type: integer
           example: 1
-    
-    Paiement: 
+
+    Paiement:
       allOf:
         - $ref: '#/components/schemas/PaiementCreation'
         - type: object
@@ -780,14 +856,14 @@ components:
         - CASH
         - MOBILE_MONEY
         - VIREMENT
-    
-    PaiementType: 
+
+    PaiementType:
       type: string
-      enum: 
+      enum:
         - COTISATION_PERIODIQUE
         - COTISATION_EXCEPTIONNELLE
         - VERSEMENT_FEDERATION
-        - ADHESION 
+        - ADHESION
         - ACTIVITE
         - FORMATION
         - AUTRE
@@ -800,7 +876,7 @@ components:
         ville:
           type: string
           example: 'Ambatondrazaka'
-    
+
     CollectiviteCreation:
       allOf:
         - $ref: '#/components/schemas/CollectiviteBaseComponent'
@@ -813,8 +889,8 @@ components:
               items:
                 $ref: '#/components/schemas/NouveauMembre'
               minItems: 10
-    
-    Collectivite: 
+
+    Collectivite:
       allOf:
         - $ref: '#/components/schemas/CollectiviteBaseComponent'
         - type: object
@@ -824,9 +900,9 @@ components:
               example: 'COllectivite manioc du sud'
             membres:
               type: array
-              items: 
+              items:
                 $ref: '#/components/schemas/Membre'
-    
+
     NouveauMembre:
       type: object
       properties:
@@ -842,7 +918,7 @@ components:
         metier:
           type: string
           example: 'Agriculteur'
-        role: 
+        role:
           $ref: '#/components/schemas/Role'
         telephone:
           type: string
@@ -894,10 +970,19 @@ components:
         membreId:
           type: integer
           example: 1
-        parrainId:
-          type: integer
-          example: 2
-    
+        parrains:
+          type: array
+          minItems: 2
+          items:
+            $ref: "#/components/schemas/Parrainage"
+        fraisAdhesion:
+          type: number
+          enum: [50000]
+        cotisationAnnuelle:
+          type: number
+          readOnly: true
+          example: 200000
+
     CotisationCreation:
       type: object
       properties:
@@ -909,7 +994,7 @@ components:
           example: 15000
         type:
           $ref: '#/components/schemas/CotisationType'
-    
+
     CotisationType:
       type: string
       enum:
@@ -1130,3 +1215,43 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Presence'
+
+    Parrainage:
+      type: object
+      required:
+        - parrainId
+        - relation
+      properties:
+        parrainId:
+          type: integer
+          example: 2
+        relation:
+          type: string
+          example: "ami"
+
+    CandidatureCreation:
+      type: object
+      required:
+        - candidat
+        - parrains
+      properties:
+        candidat:
+          $ref: '#/components/schemas/NouveauMembre'
+        parrains:
+          type: array
+          minItems: 2
+          items:
+            $ref: '#/components/schemas/Parrainage'
+    Candidature:
+      allOf:
+        - $ref: '#/components/schemas/CandidatureCreation'
+        - type: object
+          properties:
+            id:
+              type: integer
+            statut:
+              type: string
+              enum:
+                - EN_ATTENTE
+                - ACCEPTEE
+                - REFUSEE
