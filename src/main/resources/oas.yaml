@@ -445,30 +445,6 @@ paths:
           $ref: '#/components/responses/NotFound'
 
   /collectivity/{id}/activites/{activiteId}/presences:
-#    post:
-#      tags:
-#        - Activites
-#      summary: Enregistrer la presence d'un membre
-#      parameters:
-#        - $ref: '#/components/parameters/CollectiviteId'
-#        - $ref: '#/components/parameters/ActiviteId'
-#      requestBody:
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: '#/components/schemas/PresenceCreation'
-#      responses:
-#        201:
-#          description: Presence enregistree
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/Presence'
-#        400:
-#          $ref: '#/components/responses/BadRequest'
-#        404:
-#          $ref: '#/components/responses/NotFound'
     post:
       tags:
         - Presence
@@ -509,7 +485,7 @@ paths:
   /collectivity/{id}/membre/{id}/assiditue:
     get:
       tags:
-        - Membre
+        - Members
       summary: Taux d'assiduite sur une periode donnee
       parameters:
         - $ref: '#/components/parameters/CollectiviteId'
@@ -530,7 +506,7 @@ paths:
   /collectivity/{id}/membre/{id}/encaissement:
     get:
       tags:
-        - Membre
+        - Members
       summary: Encaissement sur une periode donnee
       parameters:
         - $ref: '#/components/parameters/CollectiviteId'
@@ -551,7 +527,7 @@ paths:
   /collectivity/{id}/membre/{id}/impayee:
     get:
       tags:
-        - Membre
+        - Members
       summary: Les potentiels impayee sur une periode donnee
       parameters:
         - $ref: '#/components/parameters/CollectiviteId'
