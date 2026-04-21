@@ -482,7 +482,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Presence'
-  /collectivity/{id}/membre/{id}/assiditue:
+  /collectivity/{id}/membre/{id}/assiduitue:
     get:
       tags:
         - Members
@@ -619,7 +619,7 @@ components:
         type: integer
 
     MembreId:
-      name: id
+      name: membreId
       in: path
       required: true
       schema:
@@ -903,7 +903,14 @@ components:
           type: string
           format: email
           example: 'johndoe@gmail.com'
-    
+        dateNaissance:
+          type: string
+          format: date
+        genre:
+          type: string
+          enum:
+            - M
+            - F
     Membre:
       allOf:
         - $ref: '#/components/schemas/NouveauMembre'
