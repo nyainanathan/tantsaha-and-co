@@ -429,6 +429,69 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Presence'
+  /collectivity/{id}/membre/{id}/assiditue:
+    get:
+      tags:
+        - Membre
+      summary: Taux d'assiduite sur une periode donnee
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Taux d'assiduite
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /collectivity/{id}/membre/{id}/encaissement:
+    get:
+      tags:
+        - Membre
+      summary: Encaissement sur une periode donnee
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Encaissement sur une periode donnee
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /collectivity/{id}/membre/{id}/impayee:
+    get:
+      tags:
+        - Membre
+      summary: Les potentiels impayee sur une periode donnee
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Potentiels impayee
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+        404:
+          $ref: '#/components/responses/NotFound'
+
 
 components:
   parameters:
@@ -464,6 +527,22 @@ components:
       required: true
       schema:
         type: integer
+
+    FromParam:
+      name: from
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+
+    ToParam:
+      name: to
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
 
   responses:
     BadRequest:
