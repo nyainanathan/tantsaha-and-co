@@ -95,4 +95,15 @@ public class CollectivityService {
 
         return collectivity;
     }
+
+    public List<Collectivity> saveAll(List<CreateCollectivity> toSave){
+        List<Collectivity> collectivities = new ArrayList<>();
+        for(CreateCollectivity collectivity : toSave){
+            collectivities.add(
+                    this.save(collectivity)
+            );
+        }
+        return collectivities;
+    }
+
 }

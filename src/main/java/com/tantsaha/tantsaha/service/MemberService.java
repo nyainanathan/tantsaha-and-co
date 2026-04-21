@@ -1,5 +1,6 @@
 package com.tantsaha.tantsaha.service;
 
+import com.tantsaha.tantsaha.entity.CreateMember;
 import com.tantsaha.tantsaha.entity.Member;
 import com.tantsaha.tantsaha.entity.MemberHistory;
 import com.tantsaha.tantsaha.repository.MemberRepository;
@@ -26,5 +27,14 @@ public class MemberService {
         }
 
         return seniorityInDays;
+    }
+
+    public Member save(CreateMember toSave){
+        String createdMember = this.memberRepository.create(toSave);
+        memberRepository.attachMember(createdMember, toSave.getCollectivityIdentifier(), toSave.getOccupation());
+        for(String mentoring : toSave.getReferees()){
+            this.memberRepository.mentor(createdMember, mentoring);
+        }
+        return this.memberRepository.findById(createdMember);
     }
 }

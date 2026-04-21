@@ -1,14 +1,12 @@
 package com.tantsaha.tantsaha.repository;
 
-import com.tantsaha.tantsaha.entity.Gender;
-import com.tantsaha.tantsaha.entity.Member;
-import com.tantsaha.tantsaha.entity.MemberHistory;
-import com.tantsaha.tantsaha.entity.MemberOccupation;
+import com.tantsaha.tantsaha.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.xml.transform.Result;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -53,7 +51,7 @@ public class MemberRepository {
                 member.setGender(Gender.valueOf(rs.getString("gender")));
                 member.setAddress(rs.getString("address"));
                 member.setProfession(rs.getString("profession"));
-                member.setPhoneNumber(rs.getString("phone"));
+                member.setPhoneNumber(rs.getInt("phone"));
                 member.setEmail(rs.getString("email"));
                 member.setOccupation(MemberOccupation.valueOf(rs.getString("occupation")));
             }
@@ -230,4 +228,58 @@ public class MemberRepository {
         }
     }
 
+    public void mentor(String mentorId, String menteeId){
+        String query = """
+                INSERT INTO mentor
+                (mentor_member_id, mentee_member_id)
+                VALUES (?, ?)
+                """;
+
+        try{
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, mentorId);
+            ps.setString(2, menteeId);
+            ps.executeUpdate();
+
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public String create(CreateMember toSave){
+        String query = """
+                INSERT INTO member
+                (last_name, first_name, birth_date,
+                gender, address, occupation,
+                phone, email, profession, collectivity_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                RETURNING id
+                """;
+
+        String memberId = null;
+        try{
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, toSave.getLastName());
+            ps.setString(2, toSave.getFirstName());
+            ps.setDate(3, Date.valueOf(toSave.getBirthDate()));
+            ps.setString(4, toSave.getGender().name());
+            ps.setString(5, toSave.getAddress());
+            ps.setString(6, toSave.getOccupation().name());
+            ps.setString(7, toSave.getPhoneNumber().toString());
+            ps.setString(8, toSave.getEmail());
+            ps.setString(9, toSave.getProfession());
+            ps.setString(10, toSave.getCollectivityIdentifier());
+
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                memberId = rs.getString("id");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return memberId;
+    }
 }

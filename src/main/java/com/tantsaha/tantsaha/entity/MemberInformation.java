@@ -14,7 +14,7 @@ public class MemberInformation {
     private Gender gender;
     private String address;
     private String profession;
-    private String phoneNumber;
+    private Integer phoneNumber;
     private String email;
     private MemberOccupation occupation;
 }
