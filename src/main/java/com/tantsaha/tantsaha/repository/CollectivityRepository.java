@@ -1,8 +1,6 @@
 package com.tantsaha.tantsaha.repository;
 
 import com.tantsaha.tantsaha.entity.Collectivity;
-import com.tantsaha.tantsaha.entity.CollectivityCreate;
-import com.tantsaha.tantsaha.entity.CollectivityStructure;
 import com.tantsaha.tantsaha.entity.CreateCollectivity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -23,7 +21,7 @@ public class CollectivityRepository {
 
         String query = """
                 INSERT INTO collectivity
-                (name, city, speciality)
+                (name, location, speciality)
                 VALUES (? , ? , ?)
                 RETURNING id;
                 """;

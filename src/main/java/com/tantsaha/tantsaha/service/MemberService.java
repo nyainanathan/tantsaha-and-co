@@ -33,7 +33,7 @@ public class MemberService {
         String createdMember = this.memberRepository.create(toSave);
         memberRepository.attachMember(createdMember, toSave.getCollectivityIdentifier(), toSave.getOccupation());
         for(String mentoring : toSave.getReferees()){
-            this.memberRepository.mentor(createdMember, mentoring);
+            this.memberRepository.mentor(mentoring, createdMember);
         }
         return this.memberRepository.findById(createdMember);
     }

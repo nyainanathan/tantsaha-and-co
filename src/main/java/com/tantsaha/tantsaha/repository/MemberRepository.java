@@ -1,18 +1,22 @@
 package com.tantsaha.tantsaha.repository;
 
-import com.tantsaha.tantsaha.entity.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
-import javax.xml.transform.Result;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.stereotype.Repository;
+
+import com.tantsaha.tantsaha.entity.CreateMember;
+import com.tantsaha.tantsaha.entity.Gender;
+import com.tantsaha.tantsaha.entity.Member;
+import com.tantsaha.tantsaha.entity.MemberHistory;
+import com.tantsaha.tantsaha.entity.MemberOccupation;
+
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -42,6 +46,7 @@ public class MemberRepository {
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
 
+            System.out.println("THI is tth error");
             if(rs.next()){
                 member = new Member();
                 member.setId(rs.getString("id"));
@@ -214,7 +219,7 @@ public class MemberRepository {
             }
 
             PreparedStatement ps2= conn.prepareStatement(query2);
-            ps2.setString(1, memberId);
+            ps2.setString(1,memberId);
             ps2.setInt(2, roleId);
             ps2.executeUpdate();
 
@@ -252,8 +257,8 @@ public class MemberRepository {
                 INSERT INTO member
                 (last_name, first_name, birth_date,
                 gender, address, occupation,
-                phone, email, profession, collectivity_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                phone, email, profession, collectivity_id, id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 RETURNING id
                 """;
 
@@ -266,11 +271,11 @@ public class MemberRepository {
             ps.setString(4, toSave.getGender().name());
             ps.setString(5, toSave.getAddress());
             ps.setString(6, toSave.getOccupation().name());
-            ps.setString(7, toSave.getPhoneNumber().toString());
+            ps.setInt(7, toSave.getPhoneNumber());
             ps.setString(8, toSave.getEmail());
             ps.setString(9, toSave.getProfession());
             ps.setString(10, toSave.getCollectivityIdentifier());
-
+            ps.setString(11, UUID.randomUUID().toString());
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
                 memberId = rs.getString("id");
