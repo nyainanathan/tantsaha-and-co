@@ -37,4 +37,17 @@ public class MemberService {
         }
         return this.memberRepository.findById(createdMember);
     }
+
+    public List<Member> saveAll(List<CreateMember> toSave){
+
+        List<Member> members = new ArrayList<>();
+
+        for(CreateMember member : toSave){
+            members.add(
+                    save(member)
+            );
+        }
+
+        return members;
+    }
 }
