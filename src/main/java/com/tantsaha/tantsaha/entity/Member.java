@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,4 +22,8 @@ public class Member {
     private String phoneNumber;
     private String email;
     private MemberOccupation occupation;
+
+    private List<Member> referees;
+    private Boolean registrationFeePaid;
+    private Boolean membershipDuesPaid;
 }
