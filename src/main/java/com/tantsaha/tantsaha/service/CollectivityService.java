@@ -1,15 +1,13 @@
 package com.tantsaha.tantsaha.service;
 
-import com.tantsaha.tantsaha.entity.Collectivity;
-import com.tantsaha.tantsaha.entity.CollectivityStructure;
-import com.tantsaha.tantsaha.entity.CreateCollectivity;
-import com.tantsaha.tantsaha.entity.Member;
+import com.tantsaha.tantsaha.entity.*;
 import com.tantsaha.tantsaha.exception.AppBadRequestException;
 import com.tantsaha.tantsaha.repository.CollectivityRepository;
 import com.tantsaha.tantsaha.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,19 +16,83 @@ public class CollectivityService {
 
     private final CollectivityRepository collectivityRepository;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     public Collectivity save(CreateCollectivity toSave){
 
-        Collectivity collectivity = this.collectivityRepository.createCollectivity(toSave);
+        List<Member> members = new ArrayList<>();
 
-        List<Member> members = this.memberRepository.findByCollectivityId(collectivity.getId());
+        for(String id : toSave.getMembers()){
+            members.add(
+                    this.memberRepository.findById(id)
+            );
+        }
 
         if (members.size() < 10){
-            throw new AppBadRequestException("You need 10 members to create a collectivity!");
+            throw new AppBadRequestException("Collectivity without federation approval or structure missing.");
         }
+
+        int president = 0;
+        int vicePresident = 0;
+        int treasurer = 0;
+        int secretary = 0;
+
+        for(Member member : members){
+            switch (member.getOccupation()){
+                case SECRETARY -> secretary++;
+                case TREASURER -> treasurer++;
+                case VICE_PRESIDENT -> vicePresident++;
+                case PRESIDENT -> president++;
+                default -> {}
+            }
+        }
+
+        if(president != 1 || vicePresident != 1 || treasurer != 1 || secretary != 1){
+            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.")
+        }
+
+        List<Long> seniorityOfMembers = new ArrayList<>();
+
+        for(Member member : members){
+            seniorityOfMembers.add(
+                    this.memberService.getSeniority(member.getId())
+            );
+        }
+
+        int memberWithEnoughSeniority = seniorityOfMembers.stream()
+                .filter(s -> s > 180)
+                .toList().size();
+
+        if(memberWithEnoughSeniority < 5){
+            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.")
+        }
+
+        Collectivity collectivity = this.collectivityRepository.createCollectivity(toSave);
+
+        for(Member member : members) {
+            this.memberRepository.detachMember(member.getId());
+            this.memberRepository.attachMember(member.getId() , collectivity.getId(), member.getOccupation());
+        }
+
+        collectivity.setMembers(members);
 
         CollectivityStructure structure = new CollectivityStructure();
 
+        for(Member member : members){
+            if(member.getOccupation() == MemberOccupation.PRESIDENT){
+                structure.setPresident(member);
+            } else if(member.getOccupation() == MemberOccupation.VICE_PRESIDENT){
+                structure.setVicePresident(member);
+            } else if(member.getOccupation() == MemberOccupation.TREASURER){
+                structure.setTreasurer(member);
+            } else if(member.getOccupation() == MemberOccupation.SECRETARY){
+                structure.setSecretary(member);
+            }
+        }
 
+
+        collectivity.setStructure(structure);
+
+        return collectivity;
     }
 }

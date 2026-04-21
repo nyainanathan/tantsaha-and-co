@@ -124,4 +124,89 @@ public class MemberRepository {
 
         return history;
     }
+
+    public void detachMember(String memberId){
+        String query = """
+                UPDATE member
+                SET collectivity_id = null
+                WHERE id = ?
+                """;
+
+        String query1 = """
+                UPDATE role_attribution
+                SET ended_at = current_date
+                WHERE ended_at is  null
+                AND member_id = ?
+                """;
+
+        try{
+
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1 , memberId);
+            ps.execute();
+
+            PreparedStatement ps1 = conn.prepareStatement(query1);
+            ps1.setString(1, memberId);
+            ps1.execute();
+
+        } catch(Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void attachMember(String memberId, String collectivityId, MemberOccupation occupation){
+        String query = """
+                UPDATE member
+                SET collectivity_id = ?
+                WHERE id = ?
+                """;
+
+        boolean isUniquePerMandate = occupation != MemberOccupation.JUNIOR && occupation != MemberOccupation.SENIOR;
+
+        String query1 = """
+                SELECT id
+                FROM role
+                WHERE label = ?
+                AND is_unique_per_mandate = ?
+                LIMIT 1
+                """;
+
+        String query2 = """
+                INSERT INTO role_attribution
+                (member_id, role_id)
+                VALUES (?, ?)
+                """;
+
+        try{
+
+            PreparedStatement ps1 = conn.prepareStatement(query1);
+            ps1.setString(1, occupation.name());
+            ps1.setBoolean(2, isUniquePerMandate);
+
+            Integer roleId = null;
+
+            ResultSet rs = ps1.executeQuery();;
+            if(rs.next()){
+                roleId = rs.getInt("id");
+            }
+
+            if(roleId == null){
+                throw new RuntimeException("Role not found");
+            }
+
+            PreparedStatement ps2= conn.prepareStatement(query2);
+            ps2.setString(1, memberId);
+            ps2.setInt(2, roleId);
+            ps2.executeUpdate();
+
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1 , collectivityId);
+            ps.setString(2 , memberId);
+            ps.executeUpdate();
+
+        } catch(Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
 }
