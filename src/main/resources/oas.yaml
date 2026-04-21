@@ -18,6 +18,8 @@ tags:
     description: Operations liees aux comptes de tresorerie
   - name: Presence
     description: Operations liees aux presences à des activites
+  - name: Stats
+    description: Operations liees aux statistiques d'une collectivite
 
 servers:
   - url: 'http://localhost:8080'
@@ -491,7 +493,64 @@ paths:
                 format: double
         404:
           $ref: '#/components/responses/NotFound'
+  
+  /collectivity/{id}/assiditue:
+    get:
+      tags: 
+        - Stats
+      summary: Le taux d'assiduite total sur une periode donnes
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Taux d'assiduite globale pour cette collectivite
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteAssiduite'
+        404:
+          $ref: '#/components/responses/NotFound'
 
+
+  /collectivity/{id}/membreAJour:
+    get:
+      tags: 
+        - Stats
+      summary: Le taux de membres a jour dans leur paiement sur une periode donnes
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Taux de membres a jour pour cette collectivite
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteMembreAJour'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /collectivity/{id}/nouveauMembres:
+    get:
+      tags: 
+        - Stats
+      summary: Le nombre de nouveaux membres sur une periode donnes
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+      responses:
+        200:
+          description: Nombre de nouveaux membres pour cette collectivite sur cette periode donnees
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteNouveauMembres'
+        404:
+          $ref: '#/components/responses/NotFound'
 
 components:
   parameters:
@@ -558,7 +617,46 @@ components:
 
 
   schemas:
-    
+
+    CollectiviteAssiduite:
+      type: object
+      properties:
+        nombreActivite:
+          type: integer
+          example: 1
+        nombreParcitipants:
+          type: integer
+          example: 10
+        assiduite:
+          type: number
+          format: decimal
+          example: 67.2
+          
+    CollectiviteMembreAJour:
+      type: object
+      properties:
+        totalMembre:
+          type: integer
+          example: 23
+        membreAJour: 
+          type: integer
+          example: 12
+        tauxAJour:
+          type: number
+          format: decimal
+          example: 45.8
+
+    CollectiviteNouveauMembres:
+      type: object
+      properties:
+        membres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Membre'
+        total : 
+          type: integer
+          example: 21
+
     ActiviteCreation:
       type: object
       properties:
