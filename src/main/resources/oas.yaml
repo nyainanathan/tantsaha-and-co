@@ -617,7 +617,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectiviteAssiduite'
+                $ref: '#/components/schemas/FederationAssiduite'
 
   /federation/membreAJour:
     get:
@@ -633,7 +633,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectiviteMembreAJour'
+                $ref: '#/components/schemas/FederationMembreAJour'
 
   /federation/nouveauMembres:
     get:
@@ -649,7 +649,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectiviteNouveauMembres'
+                $ref: '#/components/schemas/FederationNouveauMembres'
 
 components:
   parameters:
@@ -755,6 +755,78 @@ components:
         total :
           type: integer
           example: 21
+
+    FederationAssiduite:
+      type: object
+      properties:
+        parCollectivite:
+          type: array
+          items:
+            type: object
+            properties:
+              collectiviteId:
+                type: integer
+                example: 1
+              collectiviteNom:
+                type: string
+                example: "Collectivite manioc du sud"
+              assiduite:
+                type: number
+                format: decimal
+                example: 67.2
+              nombreActivite:
+                type: integer
+                example: 5
+              nombreParticipants:
+                type: integer
+                example: 30
+
+    FederationMembreAJour:
+      type: object
+      properties:
+        parCollectivite:
+          type: array
+          items:
+            type: object
+            properties:
+              collectiviteId:
+                type: integer
+                example: 1
+              collectiviteNom:
+                type: string
+                example: "Collectivite manioc du sud"
+              totalMembre:
+                type: integer
+                example: 23
+              membreAJour:
+                type: integer
+                example: 12
+              tauxAJour:
+                type: number
+                format: decimal
+                example: 52.2
+
+    FederationNouveauMembres:
+      type: object
+      properties:
+        parCollectivite:
+          type: array
+          items:
+            type: object
+            properties:
+              collectiviteId:
+                type: integer
+                example: 1
+              collectiviteNom:
+                type: string
+                example: "Collectivite manioc du sud"
+              nouveauMembres:
+                type: integer
+                example: 8
+              membres:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Membre'
 
 
     ActiviteCreation:
