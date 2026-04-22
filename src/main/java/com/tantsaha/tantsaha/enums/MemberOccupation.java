@@ -1,4 +1,4 @@
-package com.tantsaha.tantsaha.entity;
+package com.tantsaha.tantsaha.enums;
 
 public enum MemberOccupation {
     JUNIOR,
