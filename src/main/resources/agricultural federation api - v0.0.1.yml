@@ -61,7 +61,7 @@ paths:
             - Membership dues not paid or registration fee not paid.
         404:
           description: Either collectivity or member not found.
-  /collectivities/{id}/assign:
+  /collectivities/{id}/identity:
     put:
       summary: Assign number and name to a collectivity
       parameters:
@@ -84,7 +84,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Collectivity'
         400:
-          description: Name already exists or already assigned
+          description: |
+            The following case must return a bad request exception:
+            - Name already exists or already assigned
         404:
           description: Collectivity not found
 components:
