@@ -61,6 +61,32 @@ paths:
             - Membership dues not paid or registration fee not paid.
         404:
           description: Either collectivity or member not found.
+  /collectivities/{id}/assign:
+    patch:
+      summary: Assign number and name to a collectivity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignCollectivityIdentity'
+      responses:
+        200:
+          description: Collectivity updated with number and name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collectivity'
+        400:
+          description: Name already exists or already assigned
+        404:
+          description: Collectivity not found
 components:
   schemas:
     CreateCollectivity:
@@ -103,6 +129,12 @@ components:
       properties:
         id:
           type: string
+        number:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          nullable: true
         location:
           type: string
         structure:
@@ -111,6 +143,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Member'
+    AssignCollectivityIdentity:
+      type: object
+      required:
+        - number
+        - name
+      properties:
+        number:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Collectivity"
     MemberIdentifier:
       type: string
     CreateMember:
