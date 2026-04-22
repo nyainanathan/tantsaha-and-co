@@ -20,7 +20,7 @@ public class MembershipFeeService {
     }
 
     public List<MembershipFee> getFees(String collectivityId) {
-        return repository.findByCollectivityId(collectivityId);
+        return repository.getByCollectivityId(collectivityId);
     }
 
     public List<MembershipFee> createFees(String collectivityId, List<CreateMembershipFee> dtos) {

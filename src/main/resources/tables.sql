@@ -26,5 +26,7 @@ alter table payment drop column  cotisation_id;
 
 alter table fee alter column id type varchar(255);
 
+alter table fee rename column eligiblefrom to eligible_from;
+
 alter table payment
 add column fee_id varchar(255) references fee(id);

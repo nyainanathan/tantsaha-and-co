@@ -12,6 +12,7 @@ import java.sql.SQLException;
 public class DataSourceConfig {
     private final Dotenv dotenv = Dotenv.load();
 
+    @Bean
     public Connection getConnection() {
         try {
             String dbUrl = dotenv.get("DB_URL");

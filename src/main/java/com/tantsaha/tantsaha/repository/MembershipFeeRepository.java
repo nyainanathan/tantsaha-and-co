@@ -1,24 +1,98 @@
 package com.tantsaha.tantsaha.repository;
 
+import com.tantsaha.tantsaha.entity.member.Member;
 import com.tantsaha.tantsaha.entity.member.MembershipFee;
+import com.tantsaha.tantsaha.enums.ActivityStatus;
+import com.tantsaha.tantsaha.enums.Frequency;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Repository
+@AllArgsConstructor
 public class MembershipFeeRepository {
-    private final Map<String, List<MembershipFee>> storage = new HashMap<>();
 
-    public List<MembershipFee> findByCollectivityId(String collectivityId) {
-        return storage.getOrDefault(collectivityId, new ArrayList<>());
-    }
+    private Connection conn;
 
     public List<MembershipFee> saveAll(String collectivityId, List<MembershipFee> fees) {
         storage.putIfAbsent(collectivityId, new ArrayList<>());
         storage.get(collectivityId).addAll(fees);
         return fees;
     }
+
+    public MembershipFee getById(String id){
+
+        MembershipFee fee = null;
+
+        String query = """
+                select eligible_from, frequency,amount,
+                    label, id, status
+                from fee
+                where id = ?
+                """;
+
+        try{
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                fee = new MembershipFee();
+                fee.setId(rs.getString("id"));
+                fee.setAmount(rs.getDouble("amount"));
+                fee.setLabel(rs.getString("label"));
+                fee.setStatus(ActivityStatus.valueOf(rs.getString("status")));
+                fee.setFrequency(Frequency.valueOf(rs.getString("frequency")));
+                fee.setEligibleForm(rs.getDate("eligible_from").toLocalDate());
+            }
+
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+
+        return fee;
+    }
+
+    public List<MembershipFee> getByCollectivityId(String collectivityId){
+
+        List<MembershipFee> fees = new ArrayList<>();
+
+        String query = """
+                select eligible_from, frequency,amount,
+                    label, id, status
+                from fee
+                where collectivity_id = ?
+                """;
+
+        try{
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, collectivityId);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                MembershipFee fee = new MembershipFee();
+                fee.setId(rs.getString("id"));
+                fee.setAmount(rs.getDouble("amount"));
+                fee.setLabel(rs.getString("label"));
+                fee.setStatus(ActivityStatus.valueOf(rs.getString("status")));
+                fee.setFrequency(Frequency.valueOf(rs.getString("frequency")));
+                fee.setEligibleForm(rs.getDate("eligible_from").toLocalDate());
+
+                fees.add(fee);
+            }
+
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+
+        return fees;
+    }
+
 }
