@@ -2,6 +2,7 @@ package com.tantsaha.tantsaha.service;
 
 import com.tantsaha.tantsaha.entity.*;
 import com.tantsaha.tantsaha.exception.AppBadRequestException;
+import com.tantsaha.tantsaha.exception.AppConflictException;
 import com.tantsaha.tantsaha.repository.CollectivityRepository;
 import com.tantsaha.tantsaha.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,33 @@ public class CollectivityService {
     private final CollectivityRepository collectivityRepository;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
+
+    public Collectivity assignIdentity(String id, AssignCollectivityIdentity collecIdentity){
+
+        Collectivity existing = collectivityRepository.findById(id);
+
+        if(collecIdentity.getName() == null || collecIdentity.getName().isEmpty() || collecIdentity.getNumber()==null){
+            throw new AppBadRequestException("Name or number are required");
+        }
+
+        if(existing == null){
+            throw new RuntimeException("Collectivity not found");
+        }
+
+        if(existing.getName() != null || existing.getNumber() != null){
+            throw new AppConflictException("Identity already assigned and cannot be modified.");
+        }
+
+        if(collectivityRepository.existsByName(collecIdentity.getName())){
+            throw new AppConflictException("Collectivity name already exists.");
+        }
+
+        return collectivityRepository.assignIdentity(
+                id,
+                collecIdentity.getName(),
+                collecIdentity.getNumber()
+        );
+    }
 
     public Collectivity save(CreateCollectivity toSave){
 

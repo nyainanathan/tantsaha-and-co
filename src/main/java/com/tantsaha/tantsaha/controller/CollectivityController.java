@@ -1,12 +1,12 @@
 package com.tantsaha.tantsaha.controller;
 
+import com.tantsaha.tantsaha.entity.AssignCollectivityIdentity;
 import com.tantsaha.tantsaha.entity.CreateCollectivity;
+import com.tantsaha.tantsaha.exception.AppBadRequestException;
 import com.tantsaha.tantsaha.service.CollectivityService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,6 +28,28 @@ public class CollectivityController {
             return ResponseEntity.status(500)
                     .header("Content-Type", "text/plain")
                     .body(this.collectivityService.saveAll(toSave));
+        }
+    }
+
+    @PutMapping("/collectivities/{id}/identity")
+    public ResponseEntity<?> assignIdentity(
+            @PathVariable String id,
+            @RequestBody AssignCollectivityIdentity body
+    ){
+        try {
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(collectivityService.assignIdentity(id, body));
+
+        } catch (AppBadRequestException e){
+            return ResponseEntity.status(400)
+                    .header("Content-Type", "text/plain")
+                    .body(e.getMessage());
+
+        } catch (RuntimeException e){
+            return ResponseEntity.status(404)
+                    .header("Content-Type", "text/plain")
+                    .body("Collectivity not found");
         }
     }
 }
