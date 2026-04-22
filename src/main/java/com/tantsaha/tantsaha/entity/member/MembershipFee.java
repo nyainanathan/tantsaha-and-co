@@ -1,14 +1,14 @@
 package com.tantsaha.tantsaha.entity.member;
 
+import com.tantsaha.tantsaha.DTO.CreateMembershipFee;
 import com.tantsaha.tantsaha.enums.ActivityStatus;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class MembershipFee {
-    private int id;
+@Setter
+@Getter
+public class MembershipFee extends CreateMembershipFee {
+    private String id;
     private ActivityStatus status;
 }

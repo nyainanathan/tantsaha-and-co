@@ -21,3 +21,10 @@ alter table cotisation
 add column eligibleFrom date default current_date;
 
 alter table cotisation rename to fee;
+
+alter table payment drop column  cotisation_id;
+
+alter table fee alter column id type varchar(255);
+
+alter table payment
+add column fee_id varchar(255) references fee(id);
