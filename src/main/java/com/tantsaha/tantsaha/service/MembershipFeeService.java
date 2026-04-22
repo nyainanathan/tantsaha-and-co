@@ -7,6 +7,7 @@ import com.tantsaha.tantsaha.enums.ActivityStatus;
 import com.tantsaha.tantsaha.repository.MembershipFeeRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,6 +25,22 @@ public class MembershipFeeService {
     }
 
     public List<MembershipFee> createFees(String collectivityId, List<CreateMembershipFee> dtos) {
-        return null;
+        List<String> createdFeesId = new ArrayList<>();
+
+        for(CreateMembershipFee fee : dtos){
+            createdFeesId.add(
+                    this.repository.save(fee, collectivityId)
+            );
+        }
+
+        List<MembershipFee> savedFees = new ArrayList<>();
+
+        for(String id : createdFeesId){
+            savedFees.add(
+                    this.repository.getById(id)
+            );
+        }
+
+        return savedFees;
     }
 }

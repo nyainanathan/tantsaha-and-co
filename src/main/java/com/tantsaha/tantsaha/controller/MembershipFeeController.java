@@ -37,11 +37,23 @@ public class MembershipFeeController {
         }
     }
 
-    @PostMapping
-    public List<MembershipFee> createMembershipFees(
+    @PostMapping("/collectivity/{id}/membershipFees")
+    public ResponseEntity<?> createFees(
             @PathVariable String id,
             @RequestBody List<CreateMembershipFee> fees
-    ) {
-        return service.createFees(id, fees);
+    )
+    {
+        try {
+            return ResponseEntity
+                    .status(201)
+                    .header("Content-Type", "application/json")
+                    .body(service.createFees(id, fees));
+
+        } catch (Exception e){
+            return ResponseEntity
+                    .status(500)
+                    .header("Content-Type", "text/plain")
+                    .body(e.getMessage());
+        }
     }
 }
