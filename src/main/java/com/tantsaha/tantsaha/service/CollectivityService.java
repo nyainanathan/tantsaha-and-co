@@ -28,7 +28,7 @@ public class CollectivityService {
             );
         }
 
-        if (members.size() < 10){
+        if (members.size() < 10 || !toSave.getFederationApproval()){
             throw new AppBadRequestException("Collectivity without federation approval or structure missing.");
         }
 
@@ -63,14 +63,13 @@ public class CollectivityService {
                 .filter(s -> s > 180)
                 .toList().size();
 
-        if(memberWithEnoughSeniority < 5){
-            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.");
-        }
+//        if(memberWithEnoughSeniority < 5){
+//            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.");
+//        }
 
         Collectivity collectivity = this.collectivityRepository.createCollectivity(toSave);
 
         for(Member member : members) {
-            this.memberRepository.detachMember(member.getId());
             this.memberRepository.attachMember(member.getId() , collectivity.getId(), member.getOccupation());
         }
 

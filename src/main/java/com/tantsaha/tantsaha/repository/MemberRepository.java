@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +47,6 @@ public class MemberRepository {
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
 
-            System.out.println("THI is tth error");
             if(rs.next()){
                 member = new Member();
                 member.setId(rs.getString("id"));
@@ -69,7 +69,7 @@ public class MemberRepository {
 
             while(rs1.next()){
                 referees.add(
-                        rs1.getString("id")
+                        rs1.getString("mentee_member_id")
                 );
             }
 
@@ -134,11 +134,14 @@ public class MemberRepository {
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()){
+                Date endedAt = rs.getDate("ended_at");
+                LocalDate endDate = endedAt != null ? endedAt.toLocalDate() : LocalDate.now();
+
                 history.add(
                         new MemberHistory(
                                 MemberOccupation.valueOf(rs.getString("label")),
                                 rs.getDate("attributed_at").toLocalDate(),
-                                rs.getDate("ended_at").toLocalDate()
+                                endDate
                         )
                 );
             }
