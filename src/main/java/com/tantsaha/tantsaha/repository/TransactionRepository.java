@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,36 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransactionRepository {
     private DataSource dataSource;
+
+    public void saveTransaction(
+            String collectivityId,
+            Double amount,
+            int accountId,
+            String memberId,
+            String paymentMode
+    ) {
+        String query = """
+            INSERT INTO transaction(
+                collectivity_id, amount, account_id, member_id, payment_mode, creation_date
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
+
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, collectivityId);
+            ps.setDouble(2, amount);
+            ps.setInt(3, accountId);
+            ps.setString(4, memberId);
+            ps.setString(5, paymentMode);
+            ps.setDate(6, Date.valueOf(LocalDate.now()));
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public List<CollectivityTransaction> getByCollectivityAndPeriod(
             String collectivityId,

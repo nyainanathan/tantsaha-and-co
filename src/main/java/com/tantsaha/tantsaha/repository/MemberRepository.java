@@ -27,6 +27,38 @@ public class MemberRepository {
 
     private DataSource dataSource;
 
+    public boolean existsById(String memberId) {
+        String query = "SELECT 1 FROM member WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();){
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, memberId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getCollectivityId(String memberId) {
+        String query = "SELECT collectivity_id FROM member WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();){
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, memberId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("collectivity_id");
+            }
+            return null;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Member findById(String id){
         String query = """
                 SELECT last_name, first_name, birth_date,

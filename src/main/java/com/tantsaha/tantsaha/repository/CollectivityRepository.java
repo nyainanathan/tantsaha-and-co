@@ -67,7 +67,7 @@ public class CollectivityRepository {
 
     public boolean existsById(String id){
         String query = """
-        SELECT id
+        SELECT 1
         FROM collectivity
         WHERE id = ?
     """;
