@@ -1,5 +1,6 @@
 package com.tantsaha.tantsaha.entity;
 
+import com.tantsaha.tantsaha.enums.MemberOccupation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
