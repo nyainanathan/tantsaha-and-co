@@ -1,6 +1,11 @@
 package com.tantsaha.tantsaha.service;
 
-import com.tantsaha.tantsaha.entity.*;
+import com.tantsaha.tantsaha.DTO.AssignCollectivityIdentity;
+import com.tantsaha.tantsaha.DTO.CreateCollectivity;
+import com.tantsaha.tantsaha.entity.collectivity.Collectivity;
+import com.tantsaha.tantsaha.entity.collectivity.CollectivityStructure;
+import com.tantsaha.tantsaha.entity.member.Member;
+import com.tantsaha.tantsaha.enums.MemberOccupation;
 import com.tantsaha.tantsaha.exception.AppBadRequestException;
 import com.tantsaha.tantsaha.exception.AppConflictException;
 import com.tantsaha.tantsaha.repository.CollectivityRepository;

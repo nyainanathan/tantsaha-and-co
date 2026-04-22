@@ -1,6 +1,5 @@
-package com.tantsaha.tantsaha.entity;
+package com.tantsaha.tantsaha.entity.account;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

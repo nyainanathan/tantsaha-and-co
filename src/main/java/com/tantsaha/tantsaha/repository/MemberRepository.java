@@ -11,11 +11,11 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
-import com.tantsaha.tantsaha.entity.CreateMember;
-import com.tantsaha.tantsaha.entity.Gender;
-import com.tantsaha.tantsaha.entity.Member;
-import com.tantsaha.tantsaha.entity.MemberHistory;
-import com.tantsaha.tantsaha.entity.MemberOccupation;
+import com.tantsaha.tantsaha.DTO.CreateMember;
+import com.tantsaha.tantsaha.enums.Gender;
+import com.tantsaha.tantsaha.entity.member.Member;
+import com.tantsaha.tantsaha.entity.member.MemberHistory;
+import com.tantsaha.tantsaha.enums.MemberOccupation;
 
 import lombok.RequiredArgsConstructor;
 

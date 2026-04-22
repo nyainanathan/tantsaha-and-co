@@ -1,7 +1,7 @@
 package com.tantsaha.tantsaha.repository;
 
-import com.tantsaha.tantsaha.entity.Collectivity;
-import com.tantsaha.tantsaha.entity.CreateCollectivity;
+import com.tantsaha.tantsaha.entity.collectivity.Collectivity;
+import com.tantsaha.tantsaha.DTO.CreateCollectivity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

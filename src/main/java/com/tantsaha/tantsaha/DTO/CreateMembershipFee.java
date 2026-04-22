@@ -1,4 +1,4 @@
-package com.tantsaha.tantsaha.entity;
+package com.tantsaha.tantsaha.DTO;
 
 import com.tantsaha.tantsaha.enums.Frequency;
 import lombok.*;

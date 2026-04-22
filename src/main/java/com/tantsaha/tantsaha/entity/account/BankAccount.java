@@ -1,4 +1,4 @@
-package com.tantsaha.tantsaha.entity;
+package com.tantsaha.tantsaha.entity.account;
 
 import com.tantsaha.tantsaha.enums.Bank;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BankAccount extends  FinancialAccount {
+public class BankAccount extends FinancialAccount {
     private String holderName;
     private Bank bankName;
     private int bankCode;

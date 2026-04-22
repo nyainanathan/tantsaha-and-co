@@ -1,4 +1,4 @@
-package com.tantsaha.tantsaha.entity;
+package com.tantsaha.tantsaha.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

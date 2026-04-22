@@ -1,4 +1,4 @@
-package com.tantsaha.tantsaha.entity;
+package com.tantsaha.tantsaha.entity.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

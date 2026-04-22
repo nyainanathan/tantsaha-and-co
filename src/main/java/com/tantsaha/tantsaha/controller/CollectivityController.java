@@ -1,7 +1,7 @@
 package com.tantsaha.tantsaha.controller;
 
-import com.tantsaha.tantsaha.entity.AssignCollectivityIdentity;
-import com.tantsaha.tantsaha.entity.CreateCollectivity;
+import com.tantsaha.tantsaha.DTO.AssignCollectivityIdentity;
+import com.tantsaha.tantsaha.DTO.CreateCollectivity;
 import com.tantsaha.tantsaha.exception.AppBadRequestException;
 import com.tantsaha.tantsaha.service.CollectivityService;
 import lombok.AllArgsConstructor;

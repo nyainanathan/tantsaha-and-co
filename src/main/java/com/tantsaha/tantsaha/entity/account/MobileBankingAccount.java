@@ -1,4 +1,4 @@
-package com.tantsaha.tantsaha.entity;
+package com.tantsaha.tantsaha.entity.account;
 
 import com.tantsaha.tantsaha.enums.MobileBankingService;
 import lombok.*;

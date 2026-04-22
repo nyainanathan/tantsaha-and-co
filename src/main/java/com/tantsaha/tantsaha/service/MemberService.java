@@ -1,8 +1,8 @@
 package com.tantsaha.tantsaha.service;
 
-import com.tantsaha.tantsaha.entity.CreateMember;
-import com.tantsaha.tantsaha.entity.Member;
-import com.tantsaha.tantsaha.entity.MemberHistory;
+import com.tantsaha.tantsaha.DTO.CreateMember;
+import com.tantsaha.tantsaha.entity.member.Member;
+import com.tantsaha.tantsaha.entity.member.MemberHistory;
 import com.tantsaha.tantsaha.repository.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

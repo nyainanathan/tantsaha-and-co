@@ -1,5 +1,7 @@
-package com.tantsaha.tantsaha.entity;
+package com.tantsaha.tantsaha.entity.member;
 
+import com.tantsaha.tantsaha.enums.Gender;
+import com.tantsaha.tantsaha.enums.MemberOccupation;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,8 +1,6 @@
 package com.tantsaha.tantsaha.controller;
 
-import com.tantsaha.tantsaha.entity.CreateMember;
-import com.tantsaha.tantsaha.entity.Member;
-import com.tantsaha.tantsaha.repository.MemberRepository;
+import com.tantsaha.tantsaha.DTO.CreateMember;
 import com.tantsaha.tantsaha.service.MemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
