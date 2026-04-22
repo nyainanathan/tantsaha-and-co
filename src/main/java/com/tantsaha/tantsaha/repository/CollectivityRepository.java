@@ -5,6 +5,7 @@ import com.tantsaha.tantsaha.entity.CreateCollectivity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +15,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CollectivityRepository {
 
-    private final Connection conn;
+    private DataSource dataSource;
+
 
     public Collectivity findById(String id){
         String query = """
@@ -23,8 +25,8 @@ public class CollectivityRepository {
         WHERE id = ?
     """;
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(query);
+        try (Connection connection = dataSource.getConnection();){
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
 
@@ -51,8 +53,8 @@ public class CollectivityRepository {
         WHERE name = ?
     """;
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(query);
+        try (Connection connection = dataSource.getConnection();) {
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
 
@@ -72,8 +74,8 @@ public class CollectivityRepository {
         RETURNING id, location, name, number
     """;
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(query);
+        try (Connection connection = dataSource.getConnection();) {
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, name);
             ps.setInt(2, number);
             ps.setString(3, id);
@@ -107,8 +109,8 @@ public class CollectivityRepository {
                 RETURNING id;
                 """;
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(query);
+        try (Connection connection = dataSource.getConnection();) {
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, UUID.randomUUID().toString());
             ps.setString(2, data.getLocation());
             ps.setString(3, UUID.randomUUID().toString());

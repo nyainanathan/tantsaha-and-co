@@ -19,11 +19,13 @@ import com.tantsaha.tantsaha.entity.MemberOccupation;
 
 import lombok.RequiredArgsConstructor;
 
+import javax.sql.DataSource;
+
 @Repository
 @RequiredArgsConstructor
 public class MemberRepository {
 
-    private final Connection conn;
+    private DataSource dataSource;
 
     public Member findById(String id){
         String query = """
@@ -42,8 +44,8 @@ public class MemberRepository {
 
         Member member = null;
 
-        try{
-            PreparedStatement ps = conn.prepareStatement(query);
+        try(Connection connection = dataSource.getConnection();){
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
 
@@ -63,7 +65,7 @@ public class MemberRepository {
 
             List<String> referees = new ArrayList<>();
 
-            PreparedStatement ps1 = conn.prepareStatement(query1);
+            PreparedStatement ps1 = connection.prepareStatement(query1);
             ps1.setString(1, id);
             ResultSet rs1 = ps1.executeQuery();
 
@@ -92,8 +94,8 @@ public class MemberRepository {
                 FROM member
                 WHERE collectivity_id = ?
                 """;
-        try{
-            PreparedStatement ps = conn.prepareStatement(query);
+        try(Connection connection= dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1 , collectivityId);
 
             ResultSet rs = ps.executeQuery();
@@ -128,8 +130,8 @@ public class MemberRepository {
 
         List<MemberHistory> history = new ArrayList<>();
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(query);
+        try(Connection connection= dataSource.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, memberId);
             ResultSet rs = ps.executeQuery();
 
@@ -166,13 +168,13 @@ public class MemberRepository {
                 AND member_id = ?
                 """;
 
-        try{
+        try(Connection connection= dataSource.getConnection()){
 
-            PreparedStatement ps = conn.prepareStatement(query);
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1 , memberId);
             ps.execute();
 
-            PreparedStatement ps1 = conn.prepareStatement(query1);
+            PreparedStatement ps1 = connection.prepareStatement(query1);
             ps1.setString(1, memberId);
             ps1.execute();
 
@@ -204,9 +206,9 @@ public class MemberRepository {
                 VALUES (?, ?)
                 """;
 
-        try{
+        try(Connection connection= dataSource.getConnection()){
 
-            PreparedStatement ps1 = conn.prepareStatement(query1);
+            PreparedStatement ps1 = connection.prepareStatement(query1);
             ps1.setString(1, occupation.name());
             ps1.setBoolean(2, isUniquePerMandate);
 
@@ -221,12 +223,12 @@ public class MemberRepository {
                 throw new RuntimeException("Role not found");
             }
 
-            PreparedStatement ps2= conn.prepareStatement(query2);
+            PreparedStatement ps2= connection.prepareStatement(query2);
             ps2.setString(1,memberId);
             ps2.setInt(2, roleId);
             ps2.executeUpdate();
 
-            PreparedStatement ps = conn.prepareStatement(query);
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1 , collectivityId);
             ps.setString(2 , memberId);
             ps.executeUpdate();
@@ -243,8 +245,8 @@ public class MemberRepository {
                 VALUES (?, ?)
                 """;
 
-        try{
-            PreparedStatement ps = conn.prepareStatement(query);
+        try(Connection connection= dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, mentorId);
             ps.setString(2, menteeId);
             ps.executeUpdate();
@@ -266,8 +268,8 @@ public class MemberRepository {
                 """;
 
         String memberId = null;
-        try{
-            PreparedStatement ps = conn.prepareStatement(query);
+        try(Connection connection= dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, toSave.getLastName());
             ps.setString(2, toSave.getFirstName());
             ps.setDate(3, Date.valueOf(toSave.getBirthDate()));
