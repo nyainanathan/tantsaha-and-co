@@ -62,7 +62,7 @@ paths:
         404:
           description: Either collectivity or member not found.
   /collectivities/{id}/assign:
-    patch:
+    put:
       summary: Assign number and name to a collectivity
       parameters:
         - name: id
