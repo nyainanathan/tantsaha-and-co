@@ -65,6 +65,25 @@ public class CollectivityRepository {
         }
     }
 
+    public boolean existsById(String id){
+        String query = """
+        SELECT id
+        FROM collectivity
+        WHERE id = ?
+    """;
+
+        try (Connection connection = dataSource.getConnection();) {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public Collectivity assignIdentity(String id, String name, Integer number){
 
         String query = """
