@@ -31,14 +31,16 @@ public class MemberPaymentService {
         List<String> ids = new ArrayList<>();
 
         for (CreateMemberPayment payment : payments) {
+            System.out.println("SAVING");
             String paymentId = paymentRepository.save(
                     payment.getAmount(),
                     payment.getAccountCreditedIdentifier(),
                     payment.getPaymentMode(),
-                    memberId
+                    memberId, payment.getMembershipFeeIdentifier()
             );
             ids.add(paymentId);
 
+            System.out.println("PAYEMENT SAVED");
             transactionRepository.saveTransaction(
                     collectivityId,
                     payment.getAmount(),
@@ -46,11 +48,16 @@ public class MemberPaymentService {
                     memberId,
                     payment.getPaymentMode().toString()
             );
+            System.out.println("TRANSACTION SAVED");
         }
+
+        System.out.println("everuthing is saved");
 
         List<MemberPayment> pays = new ArrayList<>();
         for (String id : ids) {
-            pays.add(paymentRepository.getById(Integer.parseInt(id)));
+            pays.add(
+                    paymentRepository.getById(id)
+            );
         }
 
         return pays;

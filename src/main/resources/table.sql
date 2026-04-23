@@ -133,3 +133,46 @@ create table payment(
 -- UPDATE
 alter table collectivity
 alter column speciality drop not null;
+
+alter table payment
+add column member_id varchar(255) references member(id);
+
+
+alter table transaction
+    add column member_id varchar(255) references member(id);
+
+alter table transaction
+    alter column id type varchar(255);
+
+--DATA TO TEST
+
+INSERT INTO member (id, first_name, last_name, birth_date, gender, address, occupation, phone, email, profession, collectivity_id)
+VALUES
+    ('MBR-001', 'Rakoto', 'Andriamaro', '1985-06-15', 'MALE', '12 Rue de l''Indépendance, Tana', 'SENIOR', 0341234567, 'rakoto.andriamaro@mail.mg', 'Agriculteur', 'COL-001'),
+    ('MBR-002', 'Rasoa', 'Rakotondrabe', '1990-03-22', 'FEMALE', '45 Avenue de la Liberté, Tana', 'PRESIDENT', 0331234568, 'rasoa.rakotondrabe@mail.mg', 'Agronome', 'COL-001');
+
+-- Referee link: MBR-002 is referee for MBR-001
+INSERT INTO mentor (mentor_member_id, mentee_member_id)
+VALUES ('MBR-002', 'MBR-001');
+
+
+-- Cash account
+INSERT INTO cash_account (id, amount, id_collectivity)
+VALUES ('CASH-001', 0.00, 'COL-001');
+
+-- Mobile banking account (MVola)
+INSERT INTO mobile_banking_account (id, holder_name, mobile_banking_service, mobile_number, amount, id_collectivity)
+VALUES ('MOB-001', 'Rasoa Rakotondrabe', 'MVOLA', '0331234568', 0.00, 'COL-001');
+
+-- Bank account (BOA)
+INSERT INTO bank_account (id, holder_name, bank_name, bank_code, bank_branch_code, bank_account_number, bank_account_key, amount, id_collectivity)
+VALUES ('BANK-001', 'Fédération Analamanga', 'BOA', '10005', '00001', '00012345678', '90', 0.00, 'COL-001');
+
+
+-- ============================================================
+-- 4. MEMBERSHIP FEE
+-- ============================================================
+INSERT INTO fee (id, collectivity_id, amount, label, frequency, status, eligible_from)
+VALUES
+    ('FEES-001', 'COL-001', 5000.00, 'Cotisation mensuelle', 'MONTHLY',  'ACTIVE', '2026-01-01'),
+    ('FEES-002', 'COL-001', 2500.00, 'Frais d''inscription',  'PUNCTUALLY','ACTIVE', '2026-01-01');

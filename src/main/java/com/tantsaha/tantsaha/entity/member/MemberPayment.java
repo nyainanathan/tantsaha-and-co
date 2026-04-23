@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Data
 
 public class MemberPayment {
-    private int id;
+    private String id;
     private int amount;
     private PaymentMode paymentMode;
     private FinancialAccount accountCredited;
