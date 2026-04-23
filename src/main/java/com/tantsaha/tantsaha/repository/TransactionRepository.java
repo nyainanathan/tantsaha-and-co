@@ -31,19 +31,19 @@ public class TransactionRepository {
 
         String query1 = """
                 INSERT INTO transaction
-                    (amount, account_credited_cash_id, payment_mode, member_id, creation_date, id)
+                    (amount, account_credited_cash_id, payment_mode, member_id, creation_date, collectivity_id)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         String query2 = """
                 INSERT INTO transaction
-                    (amount, account_credited_bank_id, payment_mode, member_id, creation_date, id)
+                    (amount, account_credited_bank_id, payment_mode, member_id, creation_date, id, collectivity_id)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         String query3 = """
                 INSERT INTO transaction
-                    (amount, account_credited_mobile_id, payment_mode, member_id, creation_date, id)
+                    (amount, account_credited_mobile_id, payment_mode, member_id, creation_date, id, collectivity_id)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
         try (Connection connection = dataSource.getConnection()) {
@@ -64,7 +64,7 @@ public class TransactionRepository {
             ps.setString(4, memberId);
             ps.setDate(5, Date.valueOf(LocalDate.now()));
             ps.setString(6, UUID.randomUUID().toString());
-
+            ps.setString(7, collectivityId);
             ps.executeUpdate();
 
         } catch (Exception e) {
