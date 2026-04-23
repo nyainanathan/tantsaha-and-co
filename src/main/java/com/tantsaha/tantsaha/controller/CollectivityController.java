@@ -49,7 +49,7 @@ public class CollectivityController {
         } catch (RuntimeException e){
             return ResponseEntity.status(404)
                     .header("Content-Type", "text/plain")
-                    .body("Collectivity not found");
+                    .body(e.getMessage());
         }
     }
 }

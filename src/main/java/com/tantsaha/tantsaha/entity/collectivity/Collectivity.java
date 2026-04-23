@@ -4,12 +4,14 @@ import com.tantsaha.tantsaha.entity.member.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @NoArgsConstructor
-@Setter
 @Getter
+@Setter
+@ToString
 public class Collectivity {
     private String id;
     private Integer number;

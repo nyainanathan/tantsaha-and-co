@@ -1,5 +1,10 @@
 package com.tantsaha.tantsaha.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.tantsaha.tantsaha.DTO.AssignCollectivityIdentity;
 import com.tantsaha.tantsaha.DTO.CreateCollectivity;
 import com.tantsaha.tantsaha.entity.collectivity.Collectivity;
@@ -10,11 +15,9 @@ import com.tantsaha.tantsaha.exception.AppBadRequestException;
 import com.tantsaha.tantsaha.exception.AppConflictException;
 import com.tantsaha.tantsaha.repository.CollectivityRepository;
 import com.tantsaha.tantsaha.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +29,11 @@ public class CollectivityService {
 
     public Collectivity assignIdentity(String id, AssignCollectivityIdentity collecIdentity){
 
-        Collectivity existing = collectivityRepository.findById(id);
+        Collectivity collec = collectivityRepository.findById(id);
+
+        String existing = collec.getId();
+
+        System.out.println(existing);
 
         if(collecIdentity.getName() == null || collecIdentity.getName().isEmpty() || collecIdentity.getNumber()==null){
             throw new AppBadRequestException("Name or number are required");
@@ -36,7 +43,7 @@ public class CollectivityService {
             throw new RuntimeException("Collectivity not found");
         }
 
-        if(existing.getName() != null || existing.getNumber() != null){
+        if(collec.getName() != null || collec.getNumber() != null){
             throw new AppConflictException("Identity already assigned and cannot be modified.");
         }
 
@@ -51,6 +58,7 @@ public class CollectivityService {
         );
     }
 
+    @Transactional
     public Collectivity save(CreateCollectivity toSave){
 
         List<Member> members = new ArrayList<>();
@@ -84,17 +92,17 @@ public class CollectivityService {
             throw  new AppBadRequestException("Collectivity without federation approval or structure missing.");
         }
 
-        List<Long> seniorityOfMembers = new ArrayList<>();
+//        List<Long> seniorityOfMembers = new ArrayList<>();
+//
+//        for(Member member : members){
+//            seniorityOfMembers.add(
+//                    this.memberService.getSeniority(member.getId())
+//            );
+//        }
 
-        for(Member member : members){
-            seniorityOfMembers.add(
-                    this.memberService.getSeniority(member.getId())
-            );
-        }
-
-        int memberWithEnoughSeniority = seniorityOfMembers.stream()
-                .filter(s -> s > 180)
-                .toList().size();
+//        int memberWithEnoughSeniority = seniorityOfMembers.stream()
+//                .filter(s -> s > 180)
+//                .toList().size();
 
 //        if(memberWithEnoughSeniority < 5){
 //            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.");
