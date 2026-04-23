@@ -98,7 +98,7 @@ public class TransactionRepository {
             while (rs.next()) {
                 CollectivityTransaction t = new CollectivityTransaction();
 
-                t.setId(rs.getInt("id"));
+                t.setId(rs.getString("id"));
                 t.setCreationDate(rs.getDate("creation_date").toLocalDate());
                 t.setAmount(rs.getDouble("amount"));
                 t.setPaymentMode(PaymentMode.valueOf(rs.getString("payment_mode")));
