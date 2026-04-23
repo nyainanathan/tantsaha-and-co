@@ -176,3 +176,31 @@ INSERT INTO fee (id, collectivity_id, amount, label, frequency, status, eligible
 VALUES
     ('FEES-001', 'COL-001', 5000.00, 'Cotisation mensuelle', 'MONTHLY',  'ACTIVE', '2026-01-01'),
     ('FEES-002', 'COL-001', 2500.00, 'Frais d''inscription',  'PUNCTUALLY','ACTIVE', '2026-01-01');
+
+
+
+-- ============================================================
+-- PAYMENTS  (3 payments for MBR-001, one per account type)
+-- ============================================================
+INSERT INTO payment (id, amount, payment_mode, account_credited_cash_id,  account_credited_bank_id, account_credited_mobile_id, creation_date, fee_id)
+VALUES ('PAY-001', 5000.00, 'CASH',           'CASH-001', NULL,       NULL,      '2026-01-10', 'FEE-001');
+
+INSERT INTO payment (id, amount, payment_mode, account_credited_cash_id, account_credited_bank_id, account_credited_mobile_id, creation_date, fee_id)
+VALUES ('PAY-002', 2500.00, 'MOBILE_BANKING',  NULL,      NULL,       'MOB-001', '2026-02-05', 'FEE-002');
+
+INSERT INTO payment (id, amount, payment_mode, account_credited_cash_id, account_credited_bank_id, account_credited_mobile_id, creation_date, fee_id)
+VALUES ('PAY-003', 5000.00, 'BANK_TRANSFER',   NULL,      'BANK-001', NULL,      '2026-03-15', 'FEE-001');
+
+
+-- ============================================================
+-- TRANSACTIONS  (mirror of the payments, linked to collectivity)
+-- Each payment auto-creates one transaction in your real flow.
+-- ============================================================
+INSERT INTO transaction (creation_date, amount, payment_mode, collectivity_id, account_credited_cash_id,  account_credited_bank_id, account_credited_mobile_id)
+VALUES ('2026-01-10', 5000.00, 'CASH',          'COL-001', 'CASH-001', NULL,       NULL);
+
+INSERT INTO transaction (creation_date, amount, payment_mode, collectivity_id, account_credited_cash_id, account_credited_bank_id, account_credited_mobile_id)
+VALUES ('2026-02-05', 2500.00, 'MOBILE_BANKING', 'COL-001',  NULL,      NULL,       'MOB-001');
+
+INSERT INTO transaction (creation_date, amount, payment_mode, collectivity_id, account_credited_cash_id, account_credited_bank_id, account_credited_mobile_id)
+VALUES ('2026-03-15', 5000.00, 'BANK_TRANSFER',  'COL-001',  NULL,      'BANK-001', NULL);

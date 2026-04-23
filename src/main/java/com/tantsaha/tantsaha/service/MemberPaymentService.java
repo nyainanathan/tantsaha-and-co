@@ -40,7 +40,6 @@ public class MemberPaymentService {
             );
             ids.add(paymentId);
 
-            System.out.println("PAYEMENT SAVED");
             transactionRepository.saveTransaction(
                     collectivityId,
                     payment.getAmount(),
@@ -48,10 +47,8 @@ public class MemberPaymentService {
                     memberId,
                     payment.getPaymentMode().toString()
             );
-            System.out.println("TRANSACTION SAVED");
         }
 
-        System.out.println("everuthing is saved");
 
         List<MemberPayment> pays = new ArrayList<>();
         for (String id : ids) {
