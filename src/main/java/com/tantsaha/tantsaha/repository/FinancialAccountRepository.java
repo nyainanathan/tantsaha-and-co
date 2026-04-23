@@ -7,110 +7,122 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 @Repository
 @AllArgsConstructor
 public class FinancialAccountRepository {
+
     private DataSource dataSource;
 
-    public List<FinancialAccountDTO> getFinancialAccounts(String collectivityId, LocalDate at) {
+    private static final String CASH_SQL = """
+            SELECT id, amount
+            FROM cash_account
+            WHERE collectivity_id = ?
+            """;
 
+    private static final String BANK_SQL = """
+            SELECT id, amount, bank_name
+            FROM bank_account
+            WHERE collectivity_id = ?
+            """;
+
+    private static final String MOBILE_SQL = """
+            SELECT id, amount, service
+            FROM mobile_banking_account
+            WHERE collectivity_id = ?
+            """;
+
+    private static final String PAYMENTS_AFTER = """
+            SELECT COALESCE(SUM(mp.amount), 0)
+            FROM member_payment mp
+            WHERE mp.account_credited_type = ?
+              AND mp.account_credited_id = ?
+              AND mp.creation_date > ?
+            """;
+
+    public List<FinancialAccountDTO> getFinancialAccounts(String collectivityId, LocalDate at) {
         List<FinancialAccountDTO> result = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection()) {
 
-            String cashQuery = """
-            SELECT amount
-            FROM cash_account
-            WHERE collectivity_id = ?
-        """;
+            try (PreparedStatement ps = connection.prepareStatement(CASH_SQL)) {
+                ps.setString(1, collectivityId);
 
-            PreparedStatement ps1 = connection.prepareStatement(cashQuery);
-            ps1.setString(1, collectivityId);
-
-            ResultSet rs1 = ps1.executeQuery();
-
-            double cashBalance = 0;
-
-            while (rs1.next()) {
-                cashBalance += rs1.getDouble("amount");
-            }
-
-            result.add(new FinancialAccountDTO(
-                    "cash_account",
-                    null,
-                    null,
-                    cashBalance
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int id = rs.getInt("id");
+                        double amount = rs.getDouble("amount");
+                        if (at != null) {
+                            amount -= paymentsAfter(connection, "CASH", id, at);
+                        }
+                        result.add(new FinancialAccountDTO(
+                                "cash_account",
+                                null,
+                                null,
+                                amount
                         ));
-
-            String bankQuery = """
-            SELECT amount, bank_name
-            FROM bank_account
-            WHERE collectivity_id = ?
-        """;
-
-            PreparedStatement ps2 = connection.prepareStatement(bankQuery);
-            ps2.setString(1, collectivityId);
-
-            ResultSet rs2 = ps2.executeQuery();
-
-            Map<Bank, Double> bankBalances = new HashMap<>();
-
-            while (rs2.next()) {
-                Bank bank = Bank.valueOf(rs2.getString("bank_name"));
-                double amount = rs2.getDouble("amount");
-
-                bankBalances.put(bank,
-                        bankBalances.getOrDefault(bank, 0.0) + amount);
+                    }
+                }
             }
 
-            for (Map.Entry<Bank, Double> entry : bankBalances.entrySet()) {
-                result.add(new FinancialAccountDTO(
-                        "bank_account",
-                        entry.getKey(),
-                        null,
-                        entry.getValue()
-                                ));
+            try (PreparedStatement ps = connection.prepareStatement(BANK_SQL)) {
+                ps.setString(1, collectivityId);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+
+                        int id = rs.getInt("id");
+
+                        Bank bank = Bank.valueOf(rs.getString("bank_name"));
+                        double amount = rs.getDouble("amount");
+
+                        if (at != null) {
+                            amount -= paymentsAfter(connection, "BANK_TRANSFER", id, at);
+                        }
+
+                        result.add(new FinancialAccountDTO(
+                                "bank_account",
+                                bank,
+                                null,
+                                amount
+                        ));
+                    }
+                }
             }
 
-            String mobileQuery = """
-            SELECT amount, service
-            FROM mobile_banking_account
-            WHERE collectivity_id = ?
-        """;
+            try (PreparedStatement ps = connection.prepareStatement(MOBILE_SQL)) {
+                ps.setString(1, collectivityId);
 
-            PreparedStatement ps3 = connection.prepareStatement(mobileQuery);
-            ps3.setString(1, collectivityId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
 
-            ResultSet rs3 = ps3.executeQuery();
+                        int id = rs.getInt("id");
 
-            Map<MobileBankingService, Double> mobileBalances = new HashMap<>();
+                        MobileBankingService service =
+                                MobileBankingService.valueOf(rs.getString("service"));
 
-            while (rs3.next()) {
-                MobileBankingService service =
-                        MobileBankingService.valueOf(rs3.getString("service"));
+                        double amount = rs.getDouble("amount");
 
-                double amount = rs3.getDouble("amount");
+                        if (at != null) {
+                            amount -= paymentsAfter(connection, "MOBILE_BANKING", id, at);
+                        }
 
-                mobileBalances.put(service,
-                        mobileBalances.getOrDefault(service, 0.0) + amount);
-            }
-
-            for (Map.Entry<MobileBankingService, Double> entry : mobileBalances.entrySet()) {
-                result.add(new FinancialAccountDTO(
-                        "mobile_banking_account",
-                        null,
-                        entry.getKey(),
-                        entry.getValue()
-                                ));
+                        result.add(new FinancialAccountDTO(
+                                "mobile_banking_account",
+                                null,
+                                service,
+                                amount
+                        ));
+                    }
+                }
             }
 
         } catch (Exception e) {
@@ -118,5 +130,18 @@ public class FinancialAccountRepository {
         }
 
         return result;
+    }
+
+    private double paymentsAfter(Connection connection, String accountType, int accountId, LocalDate at) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(PAYMENTS_AFTER)) {
+            ps.setString(1, accountType);
+            ps.setInt(2, accountId);
+            ps.setDate(3, at != null ? Date.valueOf(at) : Date.valueOf(LocalDate.now()));
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getDouble(1) : 0.0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
