@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import com.tantsaha.tantsaha.DTO.CreateMember;
@@ -22,10 +23,10 @@ import lombok.RequiredArgsConstructor;
 import javax.sql.DataSource;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class MemberRepository {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public boolean existsById(String memberId) {
         String query = "SELECT 1 FROM member WHERE id = ?";
@@ -60,27 +61,26 @@ public class MemberRepository {
     }
 
     public Member findById(String id){
+
         String query = """
-                SELECT last_name, first_name, birth_date,
-                    gender, address, occupation, phone,
-                    email, id, profession
-                FROM member
-                WHERE id = ?
-                """;
+        SELECT last_name, first_name, birth_date,
+            gender, address, occupation, phone,
+            email, id, profession
+        FROM member
+        WHERE id = ?
+    """;
 
         String query1 = """
-                SELECT mentee_member_id
-                FROM mentor
-                WHERE mentor_member_id = ?
-                """;
+        SELECT mentee_member_id
+        FROM mentor
+        WHERE mentor_member_id = ?
+    """;
 
-        Member member = null;
-
-        try(Connection connection = dataSource.getConnection();){
+        try(Connection connection = dataSource.getConnection()){
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
-
+            Member member = new Member();
             if(rs.next()){
                 member = new Member();
                 member.setId(rs.getString("id"));
@@ -96,25 +96,79 @@ public class MemberRepository {
             }
 
             List<String> referees = new ArrayList<>();
-
             PreparedStatement ps1 = connection.prepareStatement(query1);
             ps1.setString(1, id);
             ResultSet rs1 = ps1.executeQuery();
 
             while(rs1.next()){
-                referees.add(
-                        rs1.getString("mentee_member_id")
-                );
+                referees.add(rs1.getString("mentee_member_id"));
             }
 
-            assert member != null;
             member.setReferees(referees);
-        } catch (Exception e){
+
+            return member;
+
+        } catch(Exception e){
             throw new RuntimeException(e);
         }
-
-        return member;
     }
+//    public Member findById(String id){
+//        String query = """
+//                SELECT last_name, first_name, birth_date,
+//                    gender, address, occupation, phone,
+//                    email, id, profession
+//                FROM member
+//                WHERE id = ?
+//                """;
+//
+//        String query1 = """
+//                SELECT mentee_member_id
+//                FROM mentor
+//                WHERE mentor_member_id = ?
+//                """;
+//
+//
+//        try(Connection connection = dataSource.getConnection();){
+//            PreparedStatement ps = connection.prepareStatement(query);
+//            ps.setString(1, id);
+//            ResultSet rs = ps.executeQuery();
+//
+//            Member member = null;
+//            if(rs.next()){
+//                member = new Member();
+//                member.setId(rs.getString("id"));
+//                member.setFirstName(rs.getString("first_name"));
+//                member.setLastName(rs.getString("last_name"));
+//                member.setBirthDate(rs.getDate("birth_date").toLocalDate());
+//                member.setGender(Gender.valueOf(rs.getString("gender")));
+//                member.setAddress(rs.getString("address"));
+//                member.setProfession(rs.getString("profession"));
+//                member.setPhoneNumber(rs.getInt("phone"));
+//                member.setEmail(rs.getString("email"));
+//                member.setOccupation(MemberOccupation.valueOf(rs.getString("occupation")));
+//            }
+//
+//            List<String> referees = new ArrayList<>();
+//
+//            PreparedStatement ps1 = connection.prepareStatement(query1);
+//            ps1.setString(1, id);
+//            ResultSet rs1 = ps1.executeQuery();
+//
+//            while(rs1.next()){
+//                referees.add(
+//                        rs1.getString("mentee_member_id")
+//                );
+//            }
+//
+//            assert member != null;
+//            member.setReferees(referees);
+//            return member;
+//        } catch (Exception e){
+//            throw new RuntimeException(e);
+//        }
+//
+//
+//    }
 
     public List<Member> findByCollectivityId(String collectivityId){
 

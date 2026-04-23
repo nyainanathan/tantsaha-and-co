@@ -2,6 +2,7 @@ package com.tantsaha.tantsaha.repository;
 
 import com.tantsaha.tantsaha.entity.collectivity.CollectivityTransaction;
 import com.tantsaha.tantsaha.enums.PaymentMode;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class TransactionRepository {
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public void saveTransaction(
             String collectivityId,

@@ -3,25 +3,28 @@ package com.tantsaha.tantsaha.config;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import javax.sql.DataSource;
 
 @Configuration
 public class DataSourceConfig {
+
     private final Dotenv dotenv = Dotenv.load();
 
     @Bean
-    public Connection getConnection() {
-        try {
-            String dbUrl = dotenv.get("DB_URL");
-            String user = dotenv.get("DB_USER");
-            String password = dotenv.get("DB_PASS");
+    public DataSource dataSource() {
 
-            return DriverManager.getConnection(dbUrl, user, password);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        String url = dotenv.get("DB_URL");
+        String user = dotenv.get("DB_USER");
+        String pass = dotenv.get("DB_PASS");
+
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setUrl(url);
+        dataSource.setUsername(user);
+        dataSource.setPassword(pass);
+        dataSource.setDriverClassName("org.postgresql.Driver");
+
+        return dataSource;
     }
 }

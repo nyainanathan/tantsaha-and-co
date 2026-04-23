@@ -1,6 +1,7 @@
 package com.tantsaha.tantsaha.repository;
 
 import com.tantsaha.tantsaha.DTO.CreateMembershipFee;
+import com.tantsaha.tantsaha.config.DataSourceConfig;
 import com.tantsaha.tantsaha.entity.member.Member;
 import com.tantsaha.tantsaha.entity.member.MembershipFee;
 import com.tantsaha.tantsaha.enums.ActivityStatus;
@@ -8,20 +9,19 @@ import com.tantsaha.tantsaha.enums.Frequency;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 @AllArgsConstructor
 public class MembershipFeeRepository {
 
-    private Connection conn;
+    private final DataSource dataSource;
 
     public String save(CreateMembershipFee fee, String collectivityId){
         String query = """
@@ -33,8 +33,8 @@ public class MembershipFeeRepository {
 
         String savedFeeId = null;
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(query);
+        try (Connection connection = dataSource.getConnection();) {
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setDate(1, Date.valueOf(fee.getEligibleForm()));
             ps.setString(2, fee.getFrequency().toString());
             ps.setDouble(3, fee.getAmount());
@@ -65,8 +65,8 @@ public class MembershipFeeRepository {
                 where id = ?
                 """;
 
-        try{
-            PreparedStatement ps = conn.prepareStatement(query);
+        try (Connection  connection = dataSource.getConnection();){
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
 
@@ -98,8 +98,8 @@ public class MembershipFeeRepository {
                 where collectivity_id = ?
                 """;
 
-        try{
-            PreparedStatement ps = conn.prepareStatement(query);
+        try (Connection connection = dataSource.getConnection();){
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, collectivityId);
             ResultSet rs = ps.executeQuery();
 

@@ -2,6 +2,7 @@ package com.tantsaha.tantsaha.repository;
 
 import com.tantsaha.tantsaha.entity.member.MemberPayment;
 import com.tantsaha.tantsaha.enums.PaymentMode;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -13,10 +14,10 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class MemberPaymentRepository {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public String save(Double amount, int accountId, PaymentMode mode, String memberId) {
         String query = """

@@ -2,6 +2,7 @@ package com.tantsaha.tantsaha.repository;
 
 import com.tantsaha.tantsaha.entity.collectivity.Collectivity;
 import com.tantsaha.tantsaha.DTO.CreateCollectivity;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -12,11 +13,10 @@ import java.sql.ResultSet;
 import java.util.UUID;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class CollectivityRepository {
 
-    private DataSource dataSource;
-
+    private final DataSource dataSource;
 
     public Collectivity findById(String id){
         String query = """
