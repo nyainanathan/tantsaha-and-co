@@ -24,6 +24,13 @@ public class CollectivityService {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
 
+    public Collectivity getById(String id) {
+        Collectivity collectivity = collectivityRepository.findById(id);
+        List<Member> members = memberRepository.findByCollectivityId(collectivity.getId());
+        collectivity.setMembers(members);
+        return collectivity;
+    }
+
     public Collectivity assignIdentity(String id, AssignCollectivityIdentity collecIdentity){
 
         Collectivity existing = collectivityRepository.findById(id);

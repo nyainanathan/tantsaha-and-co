@@ -3,8 +3,10 @@ package com.tantsaha.tantsaha.controller;
 import com.tantsaha.tantsaha.DTO.AssignCollectivityIdentity;
 import com.tantsaha.tantsaha.DTO.CreateCollectivity;
 import com.tantsaha.tantsaha.exception.AppBadRequestException;
+import com.tantsaha.tantsaha.exception.AppNotFoundException;
 import com.tantsaha.tantsaha.service.CollectivityService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,27 @@ import java.util.List;
 public class CollectivityController {
 
     private CollectivityService collectivityService;
+
+    @GetMapping("/collectivities/{id}")
+    public ResponseEntity<?> getById(@PathVariable String id){
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .header("Content-Type", "application/json")
+                    .body(collectivityService.getById(id));
+        }
+//        } catch (AppNotFoundException e) {
+//            return ResponseEntity
+//                    .status(HttpStatus.NOT_FOUND)
+//                    .header("Content-Type", "text/plain")
+//                    .body(e.getMessage());
+//        }
+        catch (Exception e){
+            return ResponseEntity.status(500)
+                    .header("Content-Type", "text/plain")
+                    .body(e.getMessage());
+        }
+    }
 
     @PostMapping("/collectivities")
     public ResponseEntity<?> saveALl(
