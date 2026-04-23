@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @AllArgsConstructor
@@ -26,20 +27,23 @@ public class MembershipFeeRepository {
     public String save(CreateMembershipFee fee, String collectivityId){
         String query = """
                 INSERT INTO fee
-                (eligible_from, frequency, amount, label, collectivity_id)
-                VALUES (?, ?, ?, ?, ?)
+                (eligible_from, frequency, amount, label, collectivity_id, id)
+                VALUES (?, ?, ?, ?, ?, ?)
                 RETURNING id
                 """;
 
         String savedFeeId = null;
 
         try (Connection connection = dataSource.getConnection();) {
+
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setDate(1, Date.valueOf(fee.getEligibleForm()));
+
+            ps.setDate(1, Date.valueOf(fee.getEligibleFrom()));
             ps.setString(2, fee.getFrequency().toString());
             ps.setDouble(3, fee.getAmount());
             ps.setString(4, fee.getLabel());
             ps.setString(5, collectivityId);
+            ps.setString(6, UUID.randomUUID().toString());
 
             ResultSet rs = ps.executeQuery();
 
@@ -77,7 +81,7 @@ public class MembershipFeeRepository {
                 fee.setLabel(rs.getString("label"));
                 fee.setStatus(ActivityStatus.valueOf(rs.getString("status")));
                 fee.setFrequency(Frequency.valueOf(rs.getString("frequency")));
-                fee.setEligibleForm(rs.getDate("eligible_from").toLocalDate());
+                fee.setEligibleFrom(rs.getDate("eligible_from").toLocalDate());
             }
 
         } catch (Exception e){
@@ -110,8 +114,7 @@ public class MembershipFeeRepository {
                 fee.setLabel(rs.getString("label"));
                 fee.setStatus(ActivityStatus.valueOf(rs.getString("status")));
                 fee.setFrequency(Frequency.valueOf(rs.getString("frequency")));
-                fee.setEligibleForm(rs.getDate("eligible_from").toLocalDate());
-
+                fee.setEligibleFrom(    rs.getDate("eligible_from").toLocalDate());
                 fees.add(fee);
             }
 
