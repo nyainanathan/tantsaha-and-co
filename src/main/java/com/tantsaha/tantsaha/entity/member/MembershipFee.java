@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Setter
 @Getter
+@ToString
 public class MembershipFee extends CreateMembershipFee {
     private String id;
     private ActivityStatus status;

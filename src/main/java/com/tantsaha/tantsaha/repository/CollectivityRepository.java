@@ -1,16 +1,18 @@
 package com.tantsaha.tantsaha.repository;
 
-import com.tantsaha.tantsaha.entity.collectivity.Collectivity;
-import com.tantsaha.tantsaha.DTO.CreateCollectivity;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.UUID;
+
+import javax.sql.DataSource;
+
+import org.springframework.stereotype.Repository;
+
+import com.tantsaha.tantsaha.DTO.CreateCollectivity;
+import com.tantsaha.tantsaha.entity.collectivity.Collectivity;
+
+import lombok.AllArgsConstructor;
 
 @Repository
 @AllArgsConstructor
@@ -123,7 +125,7 @@ public class CollectivityRepository {
 
         String query = """
                 INSERT INTO collectivity
-                (name, location, specialty, id)
+                (name, location, speciality, id)
                 VALUES (? , ? , ? , ?)
                 RETURNING id;
                 """;

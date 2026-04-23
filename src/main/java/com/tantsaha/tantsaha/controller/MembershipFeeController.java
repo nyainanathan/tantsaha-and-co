@@ -3,24 +3,20 @@ package com.tantsaha.tantsaha.controller;
 import com.tantsaha.tantsaha.DTO.CreateMembershipFee;
 import com.tantsaha.tantsaha.entity.member.MembershipFee;
 import com.tantsaha.tantsaha.service.MembershipFeeService;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@RequiredArgsConstructor
+@RestController
 public class MembershipFeeController {
 
     private final MembershipFeeService service;
 
-    public MembershipFeeController(MembershipFeeService service) {
-        this.service = service;
-    }
-
-    @GetMapping("/collectivity/{id}/membershipFees")
+    @GetMapping("/collectivities/{id}/membershipFees")
     public ResponseEntity<?> getMembershipFees(@PathVariable String id)
     {
         try {
@@ -37,7 +33,7 @@ public class MembershipFeeController {
         }
     }
 
-    @PostMapping("/collectivity/{id}/membershipFees")
+    @PostMapping("/collectivities/{id}/membershipFees")
     public ResponseEntity<?> createFees(
             @PathVariable String id,
             @RequestBody List<CreateMembershipFee> fees

@@ -31,11 +31,12 @@ public class MemberPaymentService {
         List<String> ids = new ArrayList<>();
 
         for (CreateMemberPayment payment : payments) {
+            System.out.println("SAVING");
             String paymentId = paymentRepository.save(
                     payment.getAmount(),
                     payment.getAccountCreditedIdentifier(),
                     payment.getPaymentMode(),
-                    memberId
+                    memberId, payment.getMembershipFeeIdentifier()
             );
             ids.add(paymentId);
 
@@ -48,9 +49,12 @@ public class MemberPaymentService {
             );
         }
 
+
         List<MemberPayment> pays = new ArrayList<>();
         for (String id : ids) {
-            pays.add(paymentRepository.getById(Integer.parseInt(id)));
+            pays.add(
+                    paymentRepository.getById(id)
+            );
         }
 
         return pays;

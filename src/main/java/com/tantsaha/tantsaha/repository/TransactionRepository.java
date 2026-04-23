@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @AllArgsConstructor
@@ -23,25 +24,46 @@ public class TransactionRepository {
     public void saveTransaction(
             String collectivityId,
             Double amount,
-            int accountId,
+            String accountId,
             String memberId,
             String paymentMode
     ) {
-        String query = """
-            INSERT INTO transaction(
-                collectivity_id, amount, account_id, member_id, payment_mode, creation_date
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
-            """;
 
+        String query1 = """
+                INSERT INTO transaction
+                    (amount, account_credited_cash_id, payment_mode, member_id, creation_date, id)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """;
+
+        String query2 = """
+                INSERT INTO transaction
+                    (amount, account_credited_bank_id, payment_mode, member_id, creation_date, id)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """;
+
+        String query3 = """
+                INSERT INTO transaction
+                    (amount, account_credited_mobile_id, payment_mode, member_id, creation_date, id)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """;
         try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, collectivityId);
-            ps.setDouble(2, amount);
-            ps.setInt(3, accountId);
+
+            PreparedStatement ps = null;
+
+            if(PaymentMode.valueOf(paymentMode) == PaymentMode.CASH){
+                ps = connection.prepareStatement(query1);
+            }  else if (PaymentMode.valueOf(paymentMode) == PaymentMode.BANK_TRANSFER){
+                ps = connection.prepareStatement(query2);
+            } else {
+                ps = connection.prepareStatement(query3);
+            }
+
+            ps.setDouble(1, amount);
+            ps.setString(2, accountId);
+            ps.setString(3, paymentMode);
             ps.setString(4, memberId);
-            ps.setString(5, paymentMode);
-            ps.setDate(6, Date.valueOf(LocalDate.now()));
+            ps.setDate(5, Date.valueOf(LocalDate.now()));
+            ps.setString(6, UUID.randomUUID().toString());
 
             ps.executeUpdate();
 

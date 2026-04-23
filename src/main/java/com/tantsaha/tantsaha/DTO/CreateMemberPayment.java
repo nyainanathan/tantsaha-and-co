@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class CreateMemberPayment {
     private Double amount;
-    private int membershipFeeIdentifier;
-    private int accountCreditedIdentifier;
+    private String membershipFeeIdentifier;
+    private String accountCreditedIdentifier;
     private PaymentMode paymentMode;
 }

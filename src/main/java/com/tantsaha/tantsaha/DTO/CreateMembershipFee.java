@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 public class CreateMembershipFee {
-    private LocalDate eligibleForm;
+    private LocalDate eligibleFrom;
     private Frequency frequency;
     private Double amount;
     private String label;
