@@ -24,7 +24,12 @@ public class MemberController {
             return ResponseEntity.status(201)
                     .header("Content-Type", "application/json")
                     .body(this.memberService.saveAll(toSave));
-        } catch (Exception e){
+        }  catch (RuntimeException e){
+            return ResponseEntity.status(400)
+                    .header("Content-Type", "text/plain")
+                    .body(e.getMessage());
+        }
+        catch (Exception e){
             return ResponseEntity.status(500)
                     .header("Content-Type", "text/plain")
                     .body(e.getMessage());

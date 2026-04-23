@@ -3,6 +3,7 @@ package com.tantsaha.tantsaha.service;
 import com.tantsaha.tantsaha.DTO.CreateMember;
 import com.tantsaha.tantsaha.entity.member.Member;
 import com.tantsaha.tantsaha.entity.member.MemberHistory;
+import com.tantsaha.tantsaha.exception.AppBadRequestException;
 import com.tantsaha.tantsaha.repository.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,30 @@ public class MemberService {
     }
 
     public Member save(CreateMember toSave){
+
+        List<String> refereesCol = new ArrayList<>();
+
+        for(String id : toSave.getReferees()){
+            refereesCol.add(
+                    this.memberRepository.getCollectivityId(id)
+            );
+        }
+
+        int fromTheCol = 0;
+        int fromTheFed = 0;
+
+        for(String coll : refereesCol){
+            if (coll.equals(toSave.getCollectivityIdentifier())){
+                fromTheCol++;
+            } else {
+                fromTheFed++;
+            }
+        }
+
+        if(fromTheCol < fromTheFed){
+            throw new AppBadRequestException("You need to have the same number of ref of the same collec than those outise");
+        }
+
         String createdMember = this.memberRepository.create(toSave);
         memberRepository.attachMember(createdMember, toSave.getCollectivityIdentifier(), toSave.getOccupation());
         for(String mentoring : toSave.getReferees()){
