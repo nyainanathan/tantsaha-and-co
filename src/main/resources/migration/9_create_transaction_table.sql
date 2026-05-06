@@ -18,6 +18,5 @@ create table if not exists "transaction"
     financial_account_id varchar
 );
 
-
 alter table if exists "transaction"
     add column if not exists member_debited_id varchar references member ("id");
