@@ -1,156 +1,133 @@
 package com.tantsaha.tantsaha.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.tantsaha.tantsaha.controller.dto.PaymentMode;
+import com.tantsaha.tantsaha.entity.*;
+import com.tantsaha.tantsaha.exception.BadRequestException;
+import com.tantsaha.tantsaha.exception.NotFoundException;
+import com.tantsaha.tantsaha.repository.CollectivityRepository;
+import com.tantsaha.tantsaha.repository.FinancialAccountRepository;
+import com.tantsaha.tantsaha.repository.MembershipFeeRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.tantsaha.tantsaha.DTO.AssignCollectivityIdentity;
-import com.tantsaha.tantsaha.DTO.CreateCollectivity;
-import com.tantsaha.tantsaha.entity.collectivity.Collectivity;
-import com.tantsaha.tantsaha.entity.collectivity.CollectivityStructure;
-import com.tantsaha.tantsaha.entity.member.Member;
-import com.tantsaha.tantsaha.enums.MemberOccupation;
-import com.tantsaha.tantsaha.exception.AppBadRequestException;
-import com.tantsaha.tantsaha.exception.AppConflictException;
-import com.tantsaha.tantsaha.repository.CollectivityRepository;
-import com.tantsaha.tantsaha.repository.MemberRepository;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Stream;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
+import static com.tantsaha.tantsaha.controller.dto.PaymentMode.*;
+import static com.tantsaha.tantsaha.entity.ActivityStatus.ACTIVE;
+import static java.util.UUID.randomUUID;
 
 @Service
 @RequiredArgsConstructor
 public class CollectivityService {
-
     private final CollectivityRepository collectivityRepository;
-    private final MemberRepository memberRepository;
-    private final MemberService memberService;
+    private final MembershipFeeRepository membershipFeeRepository;
+    private final FinancialAccountRepository financialAccountRepository;
 
-    public Collectivity getById(String id) {
-        Collectivity collectivity = collectivityRepository.findById(id);
-        List<Member> members = memberRepository.findByCollectivityId(collectivity.getId());
-        collectivity.setMembers(members);
-        return collectivity;
+    public List<CollectivityTransaction> getTransactionsByCollectivity(String collectivityIdentifier, LocalDate from, LocalDate to) {
+        List<FinancialAccount> financialAccounts = getFinancialAccounts(collectivityIdentifier);
+
+        return financialAccounts.stream()
+                .map(financialAccount -> {
+                    var transactionList = financialAccount.getTransactions().stream()
+                            .filter(transaction -> (transaction.getCreationDate().isAfter(from) || transaction.getCreationDate().equals(from))
+                                    && (transaction.getCreationDate().isBefore(to) || transaction.getCreationDate().equals(to)))
+                            .toList();
+                    var paymentMode = getPaymentMode(financialAccount);
+                    return transactionList.stream()
+                            .map(transaction -> {
+                                CollectivityTransaction collectivityTransaction = CollectivityTransaction.builder()
+                                        .id(transaction.getId())
+                                        .type(transaction.getType())
+                                        .amount(transaction.getAmount())
+                                        .creationDate(transaction.getCreationDate())
+                                        .accountCredited(financialAccount)
+                                        .paymentMode(paymentMode)
+                                        .memberDebited(transaction.getMemberDebited())
+                                        .build();
+                                return collectivityTransaction;
+                            })
+                            .toList();
+                })
+                .flatMap(List::stream)
+                .toList();
     }
 
-    public Collectivity assignIdentity(String id, AssignCollectivityIdentity collecIdentity){
-
-        Collectivity collec = collectivityRepository.findById(id);
-
-        String existing = collec.getId();
-
-        System.out.println(existing);
-
-        if(collecIdentity.getName() == null || collecIdentity.getName().isEmpty() || collecIdentity.getNumber()==null){
-            throw new AppBadRequestException("Name or number are required");
-        }
-
-        if(existing == null){
-            throw new RuntimeException("Collectivity not found");
-        }
-
-        if(collec.getName() != null || collec.getNumber() != null){
-            throw new AppConflictException("Identity already assigned and cannot be modified.");
-        }
-
-        if(collectivityRepository.existsByName(collecIdentity.getName())){
-            throw new AppConflictException("Collectivity name already exists.");
-        }
-
-        return collectivityRepository.assignIdentity(
-                id,
-                collecIdentity.getName(),
-                collecIdentity.getNumber()
-        );
+    private PaymentMode getPaymentMode(FinancialAccount financialAccount) {
+        PaymentMode paymentMode;
+        paymentMode = switch (financialAccount) {
+            case BankAccount ignored -> BANK_TRANSFER;
+            case MobileBankingAccount ignored -> MOBILE_BANKING;
+            case CashAccount ignored -> CASH;
+            default ->
+                    throw new IllegalArgumentException("Unknown financial account type " + financialAccount.getClass().getTypeName());
+        };
+        return paymentMode;
     }
 
-    @Transactional
-    public Collectivity save(CreateCollectivity toSave){
-
-        List<Member> members = new ArrayList<>();
-
-        for(String id : toSave.getMembers()){
-            members.add(
-                    this.memberRepository.findById(id)
-            );
-        }
-
-        if (members.size() < 10 || !toSave.getFederationApproval()){
-            throw new AppBadRequestException("Collectivity without federation approval or structure missing.");
-        }
-
-        int president = 0;
-        int vicePresident = 0;
-        int treasurer = 0;
-        int secretary = 0;
-
-        for(Member member : members){
-            switch (member.getOccupation()){
-                case SECRETARY -> secretary++;
-                case TREASURER -> treasurer++;
-                case VICE_PRESIDENT -> vicePresident++;
-                case PRESIDENT -> president++;
-                default -> {}
+    public List<Collectivity> createCollectivities(List<Collectivity> collectivities) {
+        for (Collectivity collectivity : collectivities) {
+            if (!collectivity.hasEnoughMembers()) {
+                throw new BadRequestException("Collectivity must have at least 10 members, otherwise actual is " + collectivity.getMembers().size());
             }
+            collectivity.setId(randomUUID().toString());
         }
-
-        if(president != 1 || vicePresident != 1 || treasurer != 1 || secretary != 1){
-            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.");
-        }
-
-//        List<Long> seniorityOfMembers = new ArrayList<>();
-//
-//        for(Member member : members){
-//            seniorityOfMembers.add(
-//                    this.memberService.getSeniority(member.getId())
-//            );
-//        }
-
-//        int memberWithEnoughSeniority = seniorityOfMembers.stream()
-//                .filter(s -> s > 180)
-//                .toList().size();
-
-//        if(memberWithEnoughSeniority < 5){
-//            throw  new AppBadRequestException("Collectivity without federation approval or structure missing.");
-//        }
-
-        Collectivity collectivity = this.collectivityRepository.createCollectivity(toSave);
-
-        for(Member member : members) {
-            this.memberRepository.attachMember(member.getId() , collectivity.getId(), member.getOccupation());
-        }
-
-        collectivity.setMembers(members);
-
-        CollectivityStructure structure = new CollectivityStructure();
-
-        for(Member member : members){
-            if(member.getOccupation() == MemberOccupation.PRESIDENT){
-                structure.setPresident(member);
-            } else if(member.getOccupation() == MemberOccupation.VICE_PRESIDENT){
-                structure.setVicePresident(member);
-            } else if(member.getOccupation() == MemberOccupation.TREASURER){
-                structure.setTreasurer(member);
-            } else if(member.getOccupation() == MemberOccupation.SECRETARY){
-                structure.setSecretary(member);
-            }
-        }
-
-
-        collectivity.setStructure(structure);
-
-        return collectivity;
+        return collectivityRepository.saveAll(collectivities);
     }
 
-    public List<Collectivity> saveAll(List<CreateCollectivity> toSave){
-        List<Collectivity> collectivities = new ArrayList<>();
-        for(CreateCollectivity collectivity : toSave){
-            collectivities.add(
-                    this.save(collectivity)
-            );
-        }
-        return collectivities;
+    public Collectivity getCollectivityById(String id) {
+        return collectivityRepository.findById(id).orElseThrow(() -> new NotFoundException("Collectivity.id= " + id + " not found"));
     }
 
+    public Collectivity updateInformations(String collectivityId, String actualName, Integer actualNumber) {
+        Collectivity collectivity = collectivityRepository.findById(collectivityId)
+                .orElseThrow(() -> new NotFoundException("Collectivity.id= " + collectivityId + " not found"));
+        if (actualNumber != null && collectivityRepository.isNumberExists(actualNumber)) {
+            throw new BadRequestException("Collectivity.number=" + actualNumber + " already exists");
+        }
+        if (actualName != null && collectivityRepository.isNameExists(actualName)) {
+            throw new BadRequestException("Collectivity.name=" + actualName + " already exists");
+        }
+        collectivity.setName(actualName);
+        collectivity.setNumber(actualNumber);
+        return collectivityRepository.saveAll(List.of((collectivity))).getFirst();
+    }
+
+    public List<MembershipFee> getMembershipFeesByCollectivityIdentifier(String collectivityIdentifier) {
+        Collectivity collectivity = collectivityRepository.findById(collectivityIdentifier)
+                .orElseThrow(() ->
+                        new NotFoundException("Collectivity.id= " + collectivityIdentifier + " not found"));
+
+        return membershipFeeRepository.getMembershipFeesByCollectivityId(collectivity.getId());
+    }
+
+    public List<MembershipFee> createMembershipFees(String collectivityIdentifier, List<MembershipFee> membershipFees) {
+        Collectivity collectivity = collectivityRepository.findById(collectivityIdentifier)
+                .orElseThrow(() ->
+                        new NotFoundException("Collectivity.id= " + collectivityIdentifier + " not found"));
+        for (MembershipFee membershipFee : membershipFees) {
+            membershipFee.setId(randomUUID().toString());
+            membershipFee.setStatus(ACTIVE);
+            membershipFee.setCollectivityOwner(collectivity);
+        }
+        return membershipFeeRepository.saveAll(membershipFees);
+    }
+
+    public List<FinancialAccount> getFinancialAccounts(String collectivityIdentifier) {
+        Collectivity collectivity = collectivityRepository.findById(collectivityIdentifier)
+                .orElseThrow(() ->
+                        new NotFoundException("Collectivity.id= " + collectivityIdentifier + " not found"));
+
+        CashAccount cashAccount = financialAccountRepository.getCashAccountByCollectivityId(collectivity.getId());
+        List<BankAccount> bankAccounts = financialAccountRepository.getBankAccountsByCollectivityId(collectivity.getId());
+        List<MobileBankingAccount> mobileBankingAccountsByCollectivityId = financialAccountRepository.getMobileBankingAccountsByCollectivityId(collectivity.getId());
+
+        return Stream.concat(
+                Stream.concat(
+                        Stream.of(cashAccount),
+                        bankAccounts.stream()),
+                mobileBankingAccountsByCollectivityId.stream()
+        ).toList();
+    }
 }

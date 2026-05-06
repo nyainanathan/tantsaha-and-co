@@ -1,0 +1,19 @@
+package com.tantsaha.tantsaha.controller.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+public class CreateMemberPayment {
+    private Integer amount;
+    private String membershipFeeIdentifier;
+    private String accountCreditedIdentifier;
+    private PaymentMode paymentMode;
+}

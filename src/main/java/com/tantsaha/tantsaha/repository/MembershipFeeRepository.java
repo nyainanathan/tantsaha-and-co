@@ -1,128 +1,85 @@
 package com.tantsaha.tantsaha.repository;
 
-import com.tantsaha.tantsaha.DTO.CreateMembershipFee;
-import com.tantsaha.tantsaha.config.DataSourceConfig;
-import com.tantsaha.tantsaha.entity.member.Member;
-import com.tantsaha.tantsaha.entity.member.MembershipFee;
-import com.tantsaha.tantsaha.enums.ActivityStatus;
-import com.tantsaha.tantsaha.enums.Frequency;
-import lombok.AllArgsConstructor;
+import com.tantsaha.tantsaha.entity.MembershipFee;
+import com.tantsaha.tantsaha.mapper.MembershipFeeMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 @Repository
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MembershipFeeRepository {
+    private final Connection connection;
+    private final MembershipFeeMapper membershipFeeMapper;
 
-    private final DataSource dataSource;
-
-    public String save(CreateMembershipFee fee, String collectivityId){
-        String query = """
-                INSERT INTO fee
-                (eligible_from, frequency, amount, label, collectivity_id, id)
-                VALUES (?, ?, ?, ?, ?, ?)
-                RETURNING id
-                """;
-
-        String savedFeeId = null;
-
-        try (Connection connection = dataSource.getConnection();) {
-
-            PreparedStatement ps = connection.prepareStatement(query);
-
-            ps.setDate(1, Date.valueOf(fee.getEligibleFrom()));
-            ps.setString(2, fee.getFrequency().toString());
-            ps.setDouble(3, fee.getAmount());
-            ps.setString(4, fee.getLabel());
-            ps.setString(5, collectivityId);
-            ps.setString(6, UUID.randomUUID().toString());
-
-            ResultSet rs = ps.executeQuery();
-
-            if(rs.next()){
-                savedFeeId = rs.getString("id");
-            }
-
-        } catch (Exception e){
-            throw new RuntimeException(e);
-        }
-
-        return savedFeeId;
-    }
-
-    public MembershipFee getById(String id){
-
-        MembershipFee fee = null;
-
-        String query = """
-                select eligible_from, frequency,amount,
-                    label, id, status
-                from fee
-                where id = ?
-                """;
-
-        try (Connection  connection = dataSource.getConnection();){
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if(rs.next()){
-                fee = new MembershipFee();
-                fee.setId(rs.getString("id"));
-                fee.setAmount(rs.getDouble("amount"));
-                fee.setLabel(rs.getString("label"));
-                fee.setStatus(ActivityStatus.valueOf(rs.getString("status")));
-                fee.setFrequency(Frequency.valueOf(rs.getString("frequency")));
-                fee.setEligibleFrom(rs.getDate("eligible_from").toLocalDate());
-            }
-
-        } catch (Exception e){
-            throw new RuntimeException(e);
-        }
-
-        return fee;
-    }
-
-    public List<MembershipFee> getByCollectivityId(String collectivityId){
-
-        List<MembershipFee> fees = new ArrayList<>();
-
-        String query = """
-                select eligible_from, frequency,amount,
-                    label, id, status
-                from fee
-                where collectivity_id = ?
-                """;
-
-        try (Connection connection = dataSource.getConnection();){
-            PreparedStatement ps = connection.prepareStatement(query);
+    public List<MembershipFee> getMembershipFeesByCollectivityId(String collectivityId) {
+        List<MembershipFee> membershipFees = new ArrayList<MembershipFee>();
+        try (PreparedStatement ps = connection.prepareStatement("""
+                select id, label, amount, frequency, status, eligible_from
+                from membership_fee where collectivity_id = ?
+                """)) {
             ps.setString(1, collectivityId);
             ResultSet rs = ps.executeQuery();
-
-            while(rs.next()){
-                MembershipFee fee = new MembershipFee();
-                fee.setId(rs.getString("id"));
-                fee.setAmount(rs.getDouble("amount"));
-                fee.setLabel(rs.getString("label"));
-                fee.setStatus(ActivityStatus.valueOf(rs.getString("status")));
-                fee.setFrequency(Frequency.valueOf(rs.getString("frequency")));
-                fee.setEligibleFrom(    rs.getDate("eligible_from").toLocalDate());
-                fees.add(fee);
+            while (rs.next()) {
+                MembershipFee membershipFee = membershipFeeMapper.mapFromResultSet(rs);
+                membershipFees.add(membershipFee);
             }
-
-        } catch (Exception e){
+            return membershipFees;
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-        return fees;
     }
 
+    public List<MembershipFee> saveAll(List<MembershipFee> membershipFees) {
+        List<MembershipFee> membershipFeeList = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                """
+                        insert into membership_fee (id, label, amount, eligible_from, status, frequency, collectivity_id)
+                        values (?, ?, ?, ?, ?::activity_status, ?::frequency,?) on conflict (id)
+                            do update set label=excluded.label,
+                                          amount=excluded.amount,
+                                          eligible_from=excluded.eligible_from,
+                                          status=excluded.status,
+                                          frequency=excluded.frequency
+                        """)) {
+            for (MembershipFee membershipFee : membershipFees) {
+                ps.setString(1, membershipFee.getId());
+                ps.setString(2, membershipFee.getLabel());
+                ps.setDouble(3, membershipFee.getAmount());
+                ps.setDate(4, Date.valueOf(membershipFee.getEligibleFrom()));
+                ps.setString(5, membershipFee.getStatus().name());
+                ps.setString(6, membershipFee.getFrequency().name());
+                ps.setString(7, membershipFee.getCollectivityOwner().getId());
+                ps.addBatch();
+            }
+            var executeBatch = ps.executeBatch();
+            for (int i = 0; i < executeBatch.length; i++) {
+                MembershipFee membershipFee = membershipFees.get(i);
+                membershipFeeList.add(findById(membershipFee.getId()).orElseThrow());
+            }
+            return membershipFeeList;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<MembershipFee> findById(String id) {
+        try (PreparedStatement ps = connection.prepareStatement("""
+                select id, label, amount, frequency, status, eligible_from from membership_fee where id = ?
+                """)) {
+            ps.setString(1, id);
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()) {
+                MembershipFee membershipFee = membershipFeeMapper.mapFromResultSet(resultSet);
+                return Optional.of(membershipFee);
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

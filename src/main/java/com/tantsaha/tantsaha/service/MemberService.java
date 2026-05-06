@@ -1,78 +1,33 @@
 package com.tantsaha.tantsaha.service;
 
-import com.tantsaha.tantsaha.DTO.CreateMember;
-import com.tantsaha.tantsaha.entity.member.Member;
-import com.tantsaha.tantsaha.entity.member.MemberHistory;
-import com.tantsaha.tantsaha.exception.AppBadRequestException;
+import com.tantsaha.tantsaha.entity.Member;
+import com.tantsaha.tantsaha.exception.BadRequestException;
 import com.tantsaha.tantsaha.repository.MemberRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
-@Service
-public class MemberService {
+import static java.util.UUID.randomUUID;
 
+@Service
+@RequiredArgsConstructor
+public class MemberService {
     private final MemberRepository memberRepository;
 
-    public long getSeniority(String memberId){
-        // in days
-        List<MemberHistory> history = this.memberRepository.getMemberHistory(memberId);
-        long seniorityInDays = 0;
-
-        for(MemberHistory entry : history){
-            seniorityInDays += ChronoUnit.DAYS.between(entry.getStartDate(), entry.getEndDate());
-        }
-
-        return seniorityInDays;
-    }
-
-    public Member save(CreateMember toSave){
-
-        List<String> refereesCol = new ArrayList<>();
-
-        for(String id : toSave.getReferees()){
-            refereesCol.add(
-                    this.memberRepository.getCollectivityId(id)
-            );
-        }
-
-        int fromTheCol = 0;
-        int fromTheFed = 0;
-
-        for(String coll : refereesCol){
-            if (coll.equals(toSave.getCollectivityIdentifier())){
-                fromTheCol++;
-            } else {
-                fromTheFed++;
+    public List<Member> addNewMembers(List<Member> memberList) {
+        for (Member member : memberList) {
+            if (!member.refereesAreEligible()) {
+                throw new BadRequestException("Member.id=" + member.getId() + " member referees are not eligible");
             }
+            if (!member.getMembershipDuesPaid()) {
+                throw new BadRequestException("Member.id=" + member.getId() + " membership dues not paid");
+            }
+            if (!member.getRegistrationFeePaid()) {
+                throw new BadRequestException("Member.id=" + member.getId() + " membership fees not paid");
+            }
+            member.setId(randomUUID().toString());
         }
-
-        if(fromTheCol < fromTheFed){
-            throw new AppBadRequestException("You need to have the same number of ref of the same collec than those outise");
-        }
-
-        String createdMember = this.memberRepository.create(toSave);
-        memberRepository.attachMember(createdMember, toSave.getCollectivityIdentifier(), toSave.getOccupation());
-        for(String mentoring : toSave.getReferees()){
-            this.memberRepository.mentor(mentoring, createdMember);
-        }
-        return this.memberRepository.findById(createdMember);
-    }
-
-    public List<Member> saveAll(List<CreateMember> toSave){
-
-        List<Member> members = new ArrayList<>();
-
-        for(CreateMember member : toSave){
-            members.add(
-                    save(member)
-            );
-        }
-
-        return members;
+        return memberRepository.saveAll(memberList);
     }
 }
