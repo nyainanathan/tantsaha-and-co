@@ -1,9 +1,6 @@
 package com.tantsaha.tantsaha.repository;
 
-import com.tantsaha.tantsaha.entity.BankAccount;
-import com.tantsaha.tantsaha.entity.CashAccount;
-import com.tantsaha.tantsaha.entity.MobileBankingAccount;
-import com.tantsaha.tantsaha.entity.Transaction;
+import com.tantsaha.tantsaha.entity.*;
 import com.tantsaha.tantsaha.exception.InternalServerErrorException;
 import com.tantsaha.tantsaha.mapper.FinancialAccountMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +18,7 @@ import java.util.List;
 public class FinancialAccountRepository {
     private final Connection connection;
     private final FinancialAccountMapper financialAccountMapper;
+    private final MemberRepository memberRepository;
 
     public List<BankAccount> getBankAccountsByCollectivityId(String collectivityId) {
         List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
@@ -82,13 +80,14 @@ public class FinancialAccountRepository {
         List<Transaction> transactions = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(
                 """
-                        select id, amount, creation_date, transaction_type from "transaction" where financial_account_id = ?
+                        select id, amount, creation_date, transaction_type, member_debited_id from "transaction" where financial_account_id = ?
                         """
         )) {
             preparedStatement.setString(1, financialAccountId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Transaction transaction = financialAccountMapper.mapTransactionFromResultSet(resultSet);
+                Member memberDebited = memberRepository.findById(resultSet.getString("member_debited_id")).orElseThrow();
+                Transaction transaction = financialAccountMapper.mapTransactionFromResultSet(resultSet, memberDebited);
 
                 transactions.add(transaction);
             }
