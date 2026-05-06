@@ -1,11 +1,11 @@
-package edu.hei.school.agricultural.repository;
+package com.tantsaha.tantsaha.repository;
 
-import edu.hei.school.agricultural.entity.BankAccount;
-import edu.hei.school.agricultural.entity.CashAccount;
-import edu.hei.school.agricultural.entity.MobileBankingAccount;
-import edu.hei.school.agricultural.entity.Transaction;
-import edu.hei.school.agricultural.exception.InternalServerErrorException;
-import edu.hei.school.agricultural.mapper.FinancialAccountMapper;
+import com.tantsaha.tantsaha.entity.BankAccount;
+import com.tantsaha.tantsaha.entity.CashAccount;
+import com.tantsaha.tantsaha.entity.MobileBankingAccount;
+import com.tantsaha.tantsaha.entity.Transaction;
+import com.tantsaha.tantsaha.exception.InternalServerErrorException;
+import com.tantsaha.tantsaha.mapper.FinancialAccountMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

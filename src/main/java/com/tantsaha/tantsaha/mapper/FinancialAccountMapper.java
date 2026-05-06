@@ -1,6 +1,6 @@
-package edu.hei.school.agricultural.mapper;
+package com.tantsaha.tantsaha.mapper;
 
-import edu.hei.school.agricultural.entity.*;
+import com.tantsaha.tantsaha.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;

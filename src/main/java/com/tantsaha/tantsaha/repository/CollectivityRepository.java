@@ -1,8 +1,8 @@
-package edu.hei.school.agricultural.repository;
+package com.tantsaha.tantsaha.repository;
 
-import edu.hei.school.agricultural.entity.Collectivity;
-import edu.hei.school.agricultural.entity.CollectivityStructure;
-import edu.hei.school.agricultural.mapper.CollectivityMapper;
+import com.tantsaha.tantsaha.entity.Collectivity;
+import com.tantsaha.tantsaha.entity.CollectivityStructure;
+import com.tantsaha.tantsaha.mapper.CollectivityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

@@ -1,8 +1,8 @@
-package edu.hei.school.agricultural.service;
+package com.tantsaha.tantsaha.service;
 
-import edu.hei.school.agricultural.entity.Member;
-import edu.hei.school.agricultural.exception.BadRequestException;
-import edu.hei.school.agricultural.repository.MemberRepository;
+import com.tantsaha.tantsaha.entity.Member;
+import com.tantsaha.tantsaha.exception.BadRequestException;
+import com.tantsaha.tantsaha.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

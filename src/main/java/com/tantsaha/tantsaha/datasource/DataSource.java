@@ -1,4 +1,4 @@
-package edu.hei.school.agricultural.datasource;
+package com.tantsaha.tantsaha.datasource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

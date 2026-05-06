@@ -1,8 +1,8 @@
-package edu.hei.school.agricultural.mapper;
+package com.tantsaha.tantsaha.mapper;
 
-import edu.hei.school.agricultural.entity.ActivityStatus;
-import edu.hei.school.agricultural.entity.Frequency;
-import edu.hei.school.agricultural.entity.MembershipFee;
+import com.tantsaha.tantsaha.entity.ActivityStatus;
+import com.tantsaha.tantsaha.entity.Frequency;
+import com.tantsaha.tantsaha.entity.MembershipFee;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;

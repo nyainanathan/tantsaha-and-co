@@ -1,4 +1,4 @@
-package edu.hei.school.agricultural.controller.dto;
+package com.tantsaha.tantsaha.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

@@ -1,16 +1,16 @@
-package edu.hei.school.agricultural.controller.mapper;
+package com.tantsaha.tantsaha.controller.mapper;
 
-import edu.hei.school.agricultural.controller.dto.ActivityStatus;
-import edu.hei.school.agricultural.controller.dto.CreateMembershipFee;
-import edu.hei.school.agricultural.controller.dto.Frequency;
-import edu.hei.school.agricultural.controller.dto.MembershipFee;
+import com.tantsaha.tantsaha.controller.dto.ActivityStatus;
+import com.tantsaha.tantsaha.controller.dto.CreateMembershipFee;
+import com.tantsaha.tantsaha.controller.dto.Frequency;
+import com.tantsaha.tantsaha.controller.dto.MembershipFee;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class MembershipFeeDtoMapper {
-    public MembershipFee mapToDto(edu.hei.school.agricultural.entity.MembershipFee membershipFee) {
+    public MembershipFee mapToDto(com.tantsaha.tantsaha.entity.MembershipFee membershipFee) {
         return MembershipFee.builder()
                 .id(membershipFee.getId())
                 .label(membershipFee.getLabel())
@@ -21,11 +21,11 @@ public class MembershipFeeDtoMapper {
                 .build();
     }
 
-    public edu.hei.school.agricultural.entity.MembershipFee mapToEntity(CreateMembershipFee createMembershipFee) {
-        return edu.hei.school.agricultural.entity.MembershipFee.builder()
+    public com.tantsaha.tantsaha.entity.MembershipFee mapToEntity(CreateMembershipFee createMembershipFee) {
+        return com.tantsaha.tantsaha.entity.MembershipFee.builder()
                 .label(createMembershipFee.getLabel())
                 .amount(createMembershipFee.getAmount())
-                .frequency(createMembershipFee.getFrequency() == null ? null : edu.hei.school.agricultural.entity.Frequency.valueOf(createMembershipFee.getFrequency().name()))
+                .frequency(createMembershipFee.getFrequency() == null ? null : com.tantsaha.tantsaha.entity.Frequency.valueOf(createMembershipFee.getFrequency().name()))
                 .eligibleFrom(createMembershipFee.getEligibleFrom())
                 .build();
     }

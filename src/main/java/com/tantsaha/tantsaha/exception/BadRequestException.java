@@ -1,4 +1,4 @@
-package edu.hei.school.agricultural.exception;
+package com.tantsaha.tantsaha.exception;
 
 public class BadRequestException extends RuntimeException {
     public BadRequestException(String message) {

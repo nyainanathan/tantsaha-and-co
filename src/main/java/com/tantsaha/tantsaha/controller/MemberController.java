@@ -1,11 +1,11 @@
-package edu.hei.school.agricultural.controller;
+package com.tantsaha.tantsaha.controller;
 
-import edu.hei.school.agricultural.controller.dto.CreateMember;
-import edu.hei.school.agricultural.controller.mapper.MemberDtoMapper;
-import edu.hei.school.agricultural.entity.Member;
-import edu.hei.school.agricultural.exception.BadRequestException;
-import edu.hei.school.agricultural.exception.NotFoundException;
-import edu.hei.school.agricultural.service.MemberService;
+import com.tantsaha.tantsaha.controller.dto.CreateMember;
+import com.tantsaha.tantsaha.controller.mapper.MemberDtoMapper;
+import com.tantsaha.tantsaha.entity.Member;
+import com.tantsaha.tantsaha.exception.BadRequestException;
+import com.tantsaha.tantsaha.exception.NotFoundException;
+import com.tantsaha.tantsaha.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

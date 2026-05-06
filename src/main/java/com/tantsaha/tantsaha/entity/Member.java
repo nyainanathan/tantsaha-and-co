@@ -1,4 +1,4 @@
-package edu.hei.school.agricultural.entity;
+package com.tantsaha.tantsaha.entity;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static edu.hei.school.agricultural.entity.MemberOccupation.JUNIOR;
+import static com.tantsaha.tantsaha.entity.MemberOccupation.JUNIOR;
 
 @NoArgsConstructor
 @AllArgsConstructor

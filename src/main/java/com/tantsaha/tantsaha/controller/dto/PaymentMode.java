@@ -1,4 +1,4 @@
-package edu.hei.school.agricultural.controller.dto;
+package com.tantsaha.tantsaha.controller.dto;
 
 public enum PaymentMode {
     CASH,

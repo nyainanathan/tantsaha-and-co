@@ -1,26 +1,26 @@
-package edu.hei.school.agricultural.controller.mapper;
+package com.tantsaha.tantsaha.controller.mapper;
 
-import edu.hei.school.agricultural.controller.dto.Bank;
-import edu.hei.school.agricultural.controller.dto.FinancialAccount;
-import edu.hei.school.agricultural.controller.dto.MobileBankingService;
-import edu.hei.school.agricultural.entity.BankAccount;
-import edu.hei.school.agricultural.entity.CashAccount;
-import edu.hei.school.agricultural.entity.MobileBankingAccount;
+import com.tantsaha.tantsaha.controller.dto.Bank;
+import com.tantsaha.tantsaha.controller.dto.FinancialAccount;
+import com.tantsaha.tantsaha.controller.dto.MobileBankingService;
+import com.tantsaha.tantsaha.entity.BankAccount;
+import com.tantsaha.tantsaha.entity.CashAccount;
+import com.tantsaha.tantsaha.entity.MobileBankingAccount;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
 @Component
 public class FinancialAccountDtoMapper {
-    public FinancialAccount mapToDto(edu.hei.school.agricultural.entity.FinancialAccount financialAccount, LocalDate at) {
+    public FinancialAccount mapToDto(com.tantsaha.tantsaha.entity.FinancialAccount financialAccount, LocalDate at) {
         LocalDate balanceAt = at == null ? LocalDate.now() : at;
         if (financialAccount instanceof CashAccount cashAccount) {
-            return edu.hei.school.agricultural.controller.dto.CashAccount.builder()
+            return com.tantsaha.tantsaha.controller.dto.CashAccount.builder()
                     .id(cashAccount.getId())
                     .amount(cashAccount.getBalanceAt(balanceAt))
                     .build();
         } else if (financialAccount instanceof BankAccount bankAccount) {
-            return edu.hei.school.agricultural.controller.dto.BankAccount.builder()
+            return com.tantsaha.tantsaha.controller.dto.BankAccount.builder()
                     .id(bankAccount.getId())
                     .holderName(bankAccount.getHolderName())
                     .bankName(bankAccount.getBankName() == null ? null : Bank.valueOf(bankAccount.getBankName().name()))
@@ -31,7 +31,7 @@ public class FinancialAccountDtoMapper {
                     .amount(bankAccount.getBalanceAt(balanceAt))
                     .build();
         } else if (financialAccount instanceof MobileBankingAccount mobileBankingAccount) {
-            return edu.hei.school.agricultural.controller.dto.MobileBankingAccount.builder()
+            return com.tantsaha.tantsaha.controller.dto.MobileBankingAccount.builder()
                     .id(mobileBankingAccount.getId())
                     .holderName(mobileBankingAccount.getHolderName())
                     .mobileNumber(mobileBankingAccount.getMobileNumber())

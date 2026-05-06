@@ -1,13 +1,13 @@
-package edu.hei.school.agricultural.controller.mapper;
+package com.tantsaha.tantsaha.controller.mapper;
 
-import edu.hei.school.agricultural.controller.dto.CreateMember;
-import edu.hei.school.agricultural.controller.dto.MemberOccupation;
-import edu.hei.school.agricultural.entity.Collectivity;
-import edu.hei.school.agricultural.entity.Gender;
-import edu.hei.school.agricultural.entity.Member;
-import edu.hei.school.agricultural.exception.NotFoundException;
-import edu.hei.school.agricultural.repository.CollectivityRepository;
-import edu.hei.school.agricultural.repository.MemberRepository;
+import com.tantsaha.tantsaha.controller.dto.CreateMember;
+import com.tantsaha.tantsaha.controller.dto.MemberOccupation;
+import com.tantsaha.tantsaha.entity.Collectivity;
+import com.tantsaha.tantsaha.entity.Gender;
+import com.tantsaha.tantsaha.entity.Member;
+import com.tantsaha.tantsaha.exception.NotFoundException;
+import com.tantsaha.tantsaha.repository.CollectivityRepository;
+import com.tantsaha.tantsaha.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +41,7 @@ public class MemberDtoMapper {
                 .lastName(createMemberDto.getLastName())
                 .birthDate(createMemberDto.getBirthDate())
                 .gender(createMemberDto.getGender() == null ? null : Gender.valueOf(createMemberDto.getGender().name()))
-                .occupation(createMemberDto.getOccupation() == null ? null : edu.hei.school.agricultural.entity.MemberOccupation.valueOf(createMemberDto.getOccupation().name()))
+                .occupation(createMemberDto.getOccupation() == null ? null : com.tantsaha.tantsaha.entity.MemberOccupation.valueOf(createMemberDto.getOccupation().name()))
                 .address(createMemberDto.getAddress())
                 .profession(createMemberDto.getProfession())
                 .phoneNumber(createMemberDto.getPhoneNumber())
@@ -56,11 +56,11 @@ public class MemberDtoMapper {
         return member;
     }
 
-    public edu.hei.school.agricultural.controller.dto.Member mapToDto(Member member) {
+    public com.tantsaha.tantsaha.controller.dto.Member mapToDto(Member member) {
         if (member == null) {
             return null;
         }
-        return edu.hei.school.agricultural.controller.dto.Member.builder()
+        return com.tantsaha.tantsaha.controller.dto.Member.builder()
                 .id(member.getId())
                 .firstName(member.getFirstName())
                 .lastName(member.getLastName())
@@ -70,7 +70,7 @@ public class MemberDtoMapper {
                 .phoneNumber(member.getPhoneNumber())
                 .profession(member.getProfession())
                 .email(member.getEmail())
-                .gender(member.getGender() == null ? null : edu.hei.school.agricultural.controller.dto.Gender.valueOf(member.getGender().name()))
+                .gender(member.getGender() == null ? null : com.tantsaha.tantsaha.controller.dto.Gender.valueOf(member.getGender().name()))
                 .occupation(member.getOccupation() == null ? null : MemberOccupation.valueOf(member.getOccupation().name()))
                 .referees(member.getReferees() == null ? List.of() : member.getReferees().stream()
                         .map(this::mapToDto)

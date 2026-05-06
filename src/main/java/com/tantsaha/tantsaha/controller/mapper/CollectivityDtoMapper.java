@@ -1,11 +1,11 @@
-package edu.hei.school.agricultural.controller.mapper;
+package com.tantsaha.tantsaha.controller.mapper;
 
-import edu.hei.school.agricultural.controller.dto.CreateCollectivity;
-import edu.hei.school.agricultural.controller.dto.CreateCollectivityStructure;
-import edu.hei.school.agricultural.entity.Collectivity;
-import edu.hei.school.agricultural.entity.CollectivityStructure;
-import edu.hei.school.agricultural.exception.NotFoundException;
-import edu.hei.school.agricultural.repository.MemberRepository;
+import com.tantsaha.tantsaha.controller.dto.CreateCollectivity;
+import com.tantsaha.tantsaha.controller.dto.CreateCollectivityStructure;
+import com.tantsaha.tantsaha.entity.Collectivity;
+import com.tantsaha.tantsaha.entity.CollectivityStructure;
+import com.tantsaha.tantsaha.exception.NotFoundException;
+import com.tantsaha.tantsaha.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,14 +15,14 @@ public class CollectivityDtoMapper {
     private final MemberRepository memberRepository;
     private final MemberDtoMapper memberDtoMapper;
 
-    public edu.hei.school.agricultural.controller.dto.Collectivity mapToDto(Collectivity collectivity) {
+    public com.tantsaha.tantsaha.controller.dto.Collectivity mapToDto(Collectivity collectivity) {
         CollectivityStructure collectivityStructure = collectivity.getCollectivityStructure();
-        return edu.hei.school.agricultural.controller.dto.Collectivity.builder()
+        return com.tantsaha.tantsaha.controller.dto.Collectivity.builder()
                 .id(collectivity.getId())
                 .name(collectivity.getName())
                 .number(collectivity.getNumber())
                 .location(collectivity.getLocation())
-                .structure(collectivityStructure == null ? null : edu.hei.school.agricultural.controller.dto.CollectivityStructure.builder()
+                .structure(collectivityStructure == null ? null : com.tantsaha.tantsaha.controller.dto.CollectivityStructure.builder()
                         .president(memberDtoMapper.mapToDto(collectivityStructure.getPresident()))
                         .vicePresident(memberDtoMapper.mapToDto(collectivityStructure.getVicePresident()))
                         .treasurer(memberDtoMapper.mapToDto(collectivityStructure.getTreasurer()))

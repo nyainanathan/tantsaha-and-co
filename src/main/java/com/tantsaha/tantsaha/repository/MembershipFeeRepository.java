@@ -1,7 +1,7 @@
-package edu.hei.school.agricultural.repository;
+package com.tantsaha.tantsaha.repository;
 
-import edu.hei.school.agricultural.entity.MembershipFee;
-import edu.hei.school.agricultural.mapper.MembershipFeeMapper;
+import com.tantsaha.tantsaha.entity.MembershipFee;
+import com.tantsaha.tantsaha.mapper.MembershipFeeMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

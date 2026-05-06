@@ -1,4 +1,4 @@
-package edu.hei.school.agricultural.exception;
+package com.tantsaha.tantsaha.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {
