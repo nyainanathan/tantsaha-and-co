@@ -7,9 +7,10 @@ info:
     - v0.0.1 (2026-04-21) : POST /collectivities for collectivities creation and POST /members for members creation.
     - v0.0.2 (2026-04-22) : PUT /collectivities/{id}/informations for collectivity information update.
     - v0.0.3 (2026-04-23) : New features about membership fees, collectivities transactions and its financial accounts, and members payments.
-  version: 0.0.1
+    - v0.0.4 (2026-04-23) : GET /collectivities/{id} and  GET /collectivities/{id}/financialAccounts
+  version: 0.0.4
 servers:
-  - url: 'http://localhost:8080'
+  - url: 'https://localhost:8080'
 paths:
   '/collectivities':
     post:
@@ -37,6 +38,49 @@ paths:
           description: Collectivity without federation approval or structure missing.
         404:
           description: Member not found.
+  '/collectivities/{id}':
+    get:
+      summary: Retrieve collectivity by its ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Collectivity retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collectivity'
+        404:
+          description: Collectivity not found
+  '/collectivities/{id}/financialAccounts':
+    get:
+      summary: Get collectivity financial accounts
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: at
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: List of financial account of the collectivity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinancialAccount'
+        404:
+          description: Collectivity not found
   '/collectivities/{id}/informations':
     put:
       summary: Attribute collectivity informations to specific collectivity
