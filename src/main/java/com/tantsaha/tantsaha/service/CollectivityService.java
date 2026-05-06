@@ -86,4 +86,6 @@ public class CollectivityService {
                 mobileBankingAccountsByCollectivityId.stream()
         ).toList();
     }
+
+    
 }
