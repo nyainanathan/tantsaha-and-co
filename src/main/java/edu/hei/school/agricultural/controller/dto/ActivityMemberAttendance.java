@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class ActivityMemberAttendance {
     private String id;
-    private MemberInformation memberInformation;
+    private MemberDescription memberDescription;
     private AttendanceStatus attendanceStatus;
 }

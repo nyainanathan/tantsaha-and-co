@@ -1,5 +1,8 @@
 package edu.hei.school.agricultural.repository;
 
+import edu.hei.school.agricultural.controller.dto.ActivityMemberAttendance;
+import edu.hei.school.agricultural.controller.dto.AttendanceStatus;
+import edu.hei.school.agricultural.controller.dto.MemberDescription;
 import edu.hei.school.agricultural.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -149,6 +152,56 @@ public class ActivityRepository {
         }
 
         return occupations;
+    }
+
+    public List<ActivityMemberAttendance> findAttendanceByActivityId(String activityId){
+
+        List<ActivityMemberAttendance> attendances = new ArrayList<>();
+
+        String query = """
+                select
+                    a.id,
+                    a.attendance_status,
+                    m.id as user_id,
+                    m.first_name,
+                    m.last_name,
+                    m.email,
+                    m.occupation
+                from activity_member_attendance a
+                join member m on a.member_id = m.id
+                where a.activity_id = ?
+                """;
+
+        try(
+            PreparedStatement ps = connection.prepareStatement(query);
+        ){
+            ps.setString(1, activityId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                ActivityMemberAttendance attendance = new ActivityMemberAttendance();
+                attendance.setId(rs.getString("id"));
+                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("attendance_status")));
+                
+                MemberDescription description = new MemberDescription();
+                description.setId(rs.getString("user_id"));
+                description.setFirstName(rs.getString("first_name"));
+                description.setLastName(rs.getString("last_name"));
+                description.setEmail(rs.getString("email"));
+                description.setOccupation(edu.hei.school.agricultural.controller.dto.MemberOccupation.valueOf(rs.getString("occupation")));
+
+                attendance.setMemberDescription(description);
+
+                attendances.add(attendance);
+            }
+
+            return attendances;
+
+
+        } catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     private CollectivityActivity mapFromResultSet(ResultSet rs) throws SQLException {

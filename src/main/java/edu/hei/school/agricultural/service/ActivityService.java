@@ -1,7 +1,6 @@
 package edu.hei.school.agricultural.service;
 
 import edu.hei.school.agricultural.entity.CollectivityActivity;
-import edu.hei.school.agricultural.entity.Member;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.repository.ActivityRepository;
