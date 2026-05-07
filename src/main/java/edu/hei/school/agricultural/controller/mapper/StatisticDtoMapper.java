@@ -19,6 +19,7 @@ public class StatisticDtoMapper {
                         .build())
                 .earnedAmount(entity.getEarnedAmount())
                 .unpaidAmount(entity.getUnpaidAmount())
+                .assiduityPercentage(entity.getAssiduityPercentage())
                 .build();
     }
 }

@@ -12,6 +12,7 @@ public class CollectivityLocalStatDto {
     private MemberDescriptionDto memberDescription;
     private Double earnedAmount;
     private Double unpaidAmount;
+    private Double assiduityPercentage;
 
     @NoArgsConstructor
     @AllArgsConstructor
