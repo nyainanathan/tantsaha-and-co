@@ -76,4 +76,23 @@ public class ActivityController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @GetMapping("/collectivities/{id}/activities{activityId}/attendance")
+    public ResponseEntity<?> findAttendance(
+        @PathVariable(name = "id") String collectivityId,
+        @PathVariable(name = "activityId") String activityId,
+    ){
+        try {
+            return ResponseEntity.status(CREATED)
+                    .body(
+                        activityService.findAttendance(collectivityId, activityId)
+                    );
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(BAD_REQUEST).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }
