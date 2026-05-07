@@ -93,4 +93,51 @@ public class StatisticRepository {
 
         return result;
     }
+
+    public Map<String, Double> getAssiduityPercentageByMember(String collectivityId,
+                                                              LocalDate from,
+                                                              LocalDate to) {
+        Map<String, Double> result = new HashMap<>();
+
+        String sql = """
+                SELECT
+                    cm.member_id,
+                    100.0 * SUM(CASE WHEN ama.attendance_status = 'ATTENDED' THEN 1 ELSE 0 END)
+                    / NULLIF(COUNT(ca.id), 0) AS assiduity_percentage
+                FROM collectivity_member cm
+                JOIN collectivity_activity ca
+                    ON ca.collectivity_id = cm.collectivity_id
+                    AND ca.executive_date BETWEEN ? AND ?
+                JOIN "member" m
+                    ON m.id = cm.member_id
+                LEFT JOIN activity_occupation ao
+                    ON ao.activity_id = ca.id
+                LEFT JOIN activity_member_attendance ama
+                    ON ama.activity_id = ca.id
+                    AND ama.member_id = cm.member_id
+                WHERE cm.collectivity_id = ?
+                  AND (ao.activity_id IS NULL OR ao.occupation = m.occupation)
+                GROUP BY cm.member_id
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setDate(1, Date.valueOf(from));
+            ps.setDate(2, Date.valueOf(to));
+            ps.setString(3, collectivityId);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                double percent = rs.getDouble("assiduity_percentage");
+                result.put(
+                        rs.getString("member_id"),
+                        rs.wasNull() ? null : percent
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
+    }
+
 }
