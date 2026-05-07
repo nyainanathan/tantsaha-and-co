@@ -207,7 +207,7 @@ public class CollectivityController {
     }
 
   @GetMapping("/collectivities/statistics")
-    public ResponseEntity<?> getCollectiesStats(@RequestParam LocalDate from, @RequestParam LocalDate to, HttpServletRequest request) {
+    public ResponseEntity<?> getCollectiesStats(@RequestParam(required = false) LocalDate from, @RequestParam(required = false) LocalDate to, HttpServletRequest request) {
         try {
             if (!apiKey.equals(request.getHeader("x-api-key"))) {
                 return ResponseEntity.status(401).body("Bad credentials");

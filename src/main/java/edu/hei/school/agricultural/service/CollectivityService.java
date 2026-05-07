@@ -140,6 +140,9 @@ public class CollectivityService {
     }
 
     public List<GlobalStats> findGlobalStats(LocalDate from, LocalDate to) {
+        if(from == null || to == null){
+                throw new BadRequestException("Mandatory query parameteres not provided or malformed");
+        }
     List<Collectivity> collectivities = collectivityRepository.findALl();
     List<GlobalStats> stats = new ArrayList<>();
 
