@@ -16,3 +16,7 @@ create table if not exists activity_member_concerned(
     id_activity varchar references "activity"(id),
     occupation member_occupation
 );
+
+alter table activity 
+add column collectivity_id varchar 
+references "collectivity"(id);
