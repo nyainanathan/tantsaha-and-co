@@ -12,6 +12,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.UUID.randomUUID;
 
@@ -191,8 +192,8 @@ public class ActivityRepository {
                     m.last_name,
                     m.email,
                     m.occupation
-                from activity_attendance u
-                join member m on u.member_id = u.id
+                from activity_attendance a
+                join member m on a.member_id = m.id
                 where a.activity_id = ?
                 and a.member_id = ?
                 """;
@@ -239,8 +240,8 @@ public class ActivityRepository {
                     m.last_name,
                     m.email,
                     m.occupation
-                from activity_attendance u
-                join member m on u.member_id = u.id
+                from activity_attendance a
+                join member m on a.member_id = m.id
                 where a.id = ?
                 """;
 
@@ -327,8 +328,8 @@ public class ActivityRepository {
 
     public String saveAttendance(AttendanceCreation toSave, String activityId){
         String query = """
-                insert into activity_attendance (member_id, activity_id, status)
-                values (?, ?, ?::attendance_status)
+                insert into activity_attendance (member_id, activity_id, status, id)
+                values (?, ?, ?::attendance_status, ?)
                 returning id
                 """;
         
@@ -338,6 +339,7 @@ public class ActivityRepository {
             ps.setString(1, toSave.getMemberIdentifier());
             ps.setString(2, activityId);
             ps.setString(3, toSave.getAttendanceStatus().name());
+            ps.setString(4, UUID.randomUUID().toString());
 
             ResultSet rs =  ps.executeQuery();
 
