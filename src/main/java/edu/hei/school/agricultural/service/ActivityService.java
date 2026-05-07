@@ -98,7 +98,7 @@ public class ActivityService {
 
         activityRepository.findById(activityId)
         .orElseThrow(() -> new NotFoundException("Activity.id= " + activityId + " not found"));
-
+        
         return activityRepository.findAttendanceByActivityId(activityId);
         
     }

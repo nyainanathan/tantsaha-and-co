@@ -57,7 +57,7 @@ public class ActivityController {
         }
     }
 
-    @PostMapping("/collectivities/{id}/activities{activityId}/attendance")
+    @PostMapping("/collectivities/{id}/activities/{activityId}/attendance")
     public ResponseEntity<?> saveAttendance(
         @PathVariable(name = "id") String collectivityId,
         @PathVariable(name = "activityId") String activityId,
@@ -77,7 +77,7 @@ public class ActivityController {
         }
     }
 
-    @GetMapping("/collectivities/{id}/activities{activityId}/attendance")
+    @GetMapping("/collectivities/{id}/activities/{activityId}/attendance")
     public ResponseEntity<?> findAttendance(
         @PathVariable(name = "id") String collectivityId,
         @PathVariable(name = "activityId") String activityId
