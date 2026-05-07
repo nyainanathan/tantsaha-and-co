@@ -29,12 +29,14 @@ public class StatisticService {
 
         Map<String, Double> earnedByMember = statisticRepository.getEarnedAmountByMember(collectivityId, from, to);
         Map<String, Double> unpaidByMember = statisticRepository.getUnpaidAmountByMember(collectivityId, from, to);
+        Map<String, Double> assiduityByMember = statisticRepository.getAssiduityPercentageByMember(collectivityId, from, to);
 
         return memberRepository.findAllByCollectivity(collectivity).stream()
                 .map(member -> CollectivityLocalStatistic.builder()
                         .memberDescription(member)
                         .earnedAmount(earnedByMember.getOrDefault(member.getId(), 0.0))
                         .unpaidAmount(unpaidByMember.getOrDefault(member.getId(), 0.0))
+                        .assiduityPercentage(assiduityByMember.getOrDefault(member.getId(), null))
                         .build())
                 .toList();
     }
