@@ -83,7 +83,7 @@ public class ActivityController {
         @PathVariable(name = "activityId") String activityId
     ){
         try {
-            return ResponseEntity.status(CREATED)
+            return ResponseEntity.status(OK)
                     .body(
                         activityService.findAttendance(collectivityId, activityId)
                     );
