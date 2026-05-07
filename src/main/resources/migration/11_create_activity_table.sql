@@ -34,3 +34,20 @@ create table if not exists "activity_occupation"
     activity_id varchar references "collectivity_activity" (id),
     occupation  member_occupation
     );
+
+do
+$$
+begin
+    if not exists(select from pg_type where typname = 'attendance_status') then
+create type attendance_status as enum ('ATTENDED', 'MISSING', 'UNDEFINED');
+end if;
+end
+$$;
+
+create table if not exists "activity_member_attendance"
+(
+    id                varchar primary key,
+    activity_id       varchar references "collectivity_activity" (id),
+    member_id         varchar references "member" (id),
+    attendance_status attendance_status default 'UNDEFINED'
+    );
