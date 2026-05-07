@@ -135,73 +135,73 @@ public class CollectivityService {
         return paymentMode;
     }
 
-    public List<GlobalStats> findGlobalStats(LocalDate from, LocalDate to){
+    public List<GlobalStats> findGlobalStats(LocalDate from, LocalDate to) {
+    List<Collectivity> collectivities = collectivityRepository.findALl();
+    List<GlobalStats> stats = new ArrayList<>();
 
-        List<Collectivity> collectivities = collectivityRepository.findALl();
-        List<GlobalStats> stats = new ArrayList<>();
+    for (Collectivity collectivity : collectivities) {
 
-        for(Collectivity collectivity : collectivities){
+        List<MembershipFee> fees = membershipFeeRepository
+                .getMembershipFeesByCollectivityId(collectivity.getId())
+                .stream()
+                .filter(c -> c.getStatus() == ActivityStatus.ACTIVE
+                          && c.getEligibleFrom().isBefore(to))
+                .toList();
 
-            List<MembershipFee> fees = membershipFeeRepository.getMembershipFeesByCollectivityId(collectivity.getId())
-                                        .stream().filter(c -> 
-                                            c.getEligibleFrom().isBefore(to)
-                                        ).toList();
-            ;
+        List<Member> members = memberRepository.findAllByCollectivity(collectivity, to);
 
-            List<Member> members = memberRepository.findAllByCollectivity(collectivity);
+        int totalMember = members.size();
+        int thoseWhoAreNotLate = 0;
 
-            double totalFee = 0;
+        for (Member m : members) {
 
-            for(MembershipFee fee : fees){
+            LocalDate adhesionDate = memberRepository
+                    .findAdhesionDate(m.getId(), collectivity.getId());
 
-                LocalDate startDate = fee.getEligibleFrom();
+            double memberTotalFee = 0;
 
-                while(startDate.isBefore(to)){
+            for (MembershipFee fee : fees) {
 
-                    if((startDate.isBefore(to) && startDate.isAfter(from)) || startDate.equals(to) || startDate.equals(from) ){
-                        totalFee += fee.getAmount();
+                LocalDate startDate = fee.getEligibleFrom().isBefore(adhesionDate)
+                        ? adhesionDate
+                        : fee.getEligibleFrom();
+
+                while (startDate.isBefore(to)) {
+                    if (!startDate.isBefore(from)) {
+                        memberTotalFee += fee.getAmount();
                     }
-
-                    if(fee.getFrequency() == Frequency.ANNUALLY){
+                    if (fee.getFrequency() == Frequency.ANNUALLY) {
                         startDate = startDate.plusYears(1);
-                    } else if(fee.getFrequency() == Frequency.MONTHLY){
+                    } else if (fee.getFrequency() == Frequency.MONTHLY) {
                         startDate = startDate.plusMonths(1);
-                    } else if(fee.getFrequency() == Frequency.WEEKLY){
+                    } else if (fee.getFrequency() == Frequency.WEEKLY) {
                         startDate = startDate.plusWeeks(1);
                     } else {
                         break;
                     }
-
-                }
-
-            }
-
-            int totalMember = members.size();
-            int thoseWhoAreNotLate = 0;
-
-            for(Member m : members){
-                double getTotalPaid = memberRepository.findTotalPaid(m.getId(), from, to);
-                if(getTotalPaid >= totalFee){
-                    thoseWhoAreNotLate++;
                 }
             }
 
-
-
-            double percentage = (thoseWhoAreNotLate * totalMember) / 100;
-            int newMembers = collectivityRepository.findNewMembers(collectivity.getId(), from, to);
-
-            GlobalStats stat = new GlobalStats();
-            stat.setCollectivityInformation(new CollectivityInformation(
-                collectivity.getName(),
-                collectivity.getNumber()
-            ));
-            stat.setNewMembersNumber(newMembers);
-            stat.setOverallMemberCurrentDuePercentage(percentage);
-
-            stats.add(stat);
+            double totalPaid = memberRepository.findTotalPaid(m.getId(), from, to);
+            if (totalPaid >= memberTotalFee) {
+                thoseWhoAreNotLate++;
+            }
         }
 
-        return stats;
+        double percentage = totalMember == 0 ? 0 : ((double) thoseWhoAreNotLate / totalMember) * 100;
+
+        int newMembers = collectivityRepository.findNewMembers(collectivity.getId(), from, to);
+
+        GlobalStats stat = new GlobalStats();
+        stat.setCollectivityInformation(new CollectivityInformation(
+                collectivity.getName(),
+                collectivity.getNumber()
+        ));
+        stat.setNewMembersNumber(newMembers);
+        stat.setOverallMemberCurrentDuePercentage(percentage);
+        stats.add(stat);
     }
+
+    return stats;
+}
 }

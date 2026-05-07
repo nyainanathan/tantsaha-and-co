@@ -64,7 +64,7 @@ public class CollectivityRepository {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
                 select id, name, number, location, president_id, vice_president_id, treasurer_id, secretary_id
-                from "collectivity"
+                from "collectivity" order by id
                 """)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             
@@ -94,7 +94,7 @@ public class CollectivityRepository {
 
                     ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                resultSet.getInt("new_member_count");
+                return resultSet.getInt("new_member_count");
             }
 
             return 0;

@@ -219,3 +219,6 @@ VALUES
   ('ref-c3-12a', 'C3-M12', 'C3-M1'), ('ref-c3-12b', 'C3-M12', 'C3-M2'),
   ('ref-c3-13a', 'C3-M13', 'C3-M1'), ('ref-c3-13b', 'C3-M13', 'C3-M2'),
   ('ref-c3-14a', 'C3-M14', 'C3-M1'), ('ref-c3-14b', 'C3-M14', 'C3-M2');
+
+
+select * from collectivity_member;

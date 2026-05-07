@@ -137,6 +137,31 @@ public class MemberRepository {
         }
     }
 
+    public List<Member> findAllByCollectivity(Collectivity collectivity, LocalDate at) {
+    List<Member> memberList = new ArrayList<>();
+    try (PreparedStatement preparedStatement = connection.prepareStatement("""
+                select member.id, first_name, last_name, birth_date, gender, phone_number, email, address, profession, occupation, registration_fee_paid, membership_dues_paid
+                from "member"
+                    join collectivity_member on member.id = collectivity_member.member_id
+                    join collectivity on collectivity.id = collectivity_member.collectivity_id
+                where collectivity_member.collectivity_id = ?
+                and collectivity_member.adhesion_date <= ?
+                """)) {
+        preparedStatement.setString(1, collectivity.getId());
+        preparedStatement.setDate(2, java.sql.Date.valueOf(at));
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+            var memberMapped = memberMapper.mapFromResultSet(resultSet);
+            memberMapped.setReferees(findRefereesByIdMember(memberMapped.getId()));
+            memberMapped.addCollectivity(collectivity);
+            memberList.add(memberMapped);
+        }
+        return memberList;
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    }
+}
+
     private List<Member> findRefereesByIdMember(String idMember) {
         List<Member> memberList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
@@ -179,4 +204,24 @@ public class MemberRepository {
                     throw new RuntimeException(e);
                 }
     }
+
+    public LocalDate findAdhesionDate(String memberId, String collectivityId) {
+    try (PreparedStatement ps = connection.prepareStatement("""
+            SELECT adhesion_date
+            FROM collectivity_member
+            WHERE member_id = ?
+            AND collectivity_id = ?
+            """)) {
+        ps.setString(1, memberId);
+        ps.setString(2, collectivityId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getDate("adhesion_date").toLocalDate();
+        } else {
+            return null;
+        }
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    }
+}
 }
