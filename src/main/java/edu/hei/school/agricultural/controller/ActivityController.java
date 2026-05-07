@@ -104,7 +104,8 @@ public class ActivityController {
             if (!apiKey.equals(request.getHeader("x-api-key"))) {
                 return ResponseEntity.status(401).body("Bad credentials");
             }
-            return ResponseEntity.status(CREATED)
+
+            return ResponseEntity.status(OK)
                     .body(
                         activityService.findAttendance(collectivityId, activityId)
                     );
