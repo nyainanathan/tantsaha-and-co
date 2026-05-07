@@ -186,13 +186,13 @@ public class ActivityRepository {
         String query = """
                 select
                     a.id,
-                    a.status,
+                    a.attendance_status,
                     m.id as user_id,
                     m.first_name,
                     m.last_name,
                     m.email,
                     m.occupation
-                from activity_attendance a
+                from activity_member_attendance a
                 join member m on a.member_id = m.id
                 where a.activity_id = ?
                 and a.member_id = ?
@@ -209,7 +209,7 @@ public class ActivityRepository {
             if(rs.next()){
                 ActivityMemberAttendance attendance = new ActivityMemberAttendance();
                 attendance.setId(rs.getString("id"));
-                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("status")));
+                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("attendance_status")));
                 
                 MemberDescription description = new MemberDescription();
                 description.setId(rs.getString("user_id"));
@@ -234,13 +234,13 @@ public class ActivityRepository {
         String query = """
                 select
                     a.id,
-                    a.status,
+                    a.attendance_status,
                     m.id as user_id,
                     m.first_name,
                     m.last_name,
                     m.email,
                     m.occupation
-                from activity_attendance a
+                from activity_member_attendance a
                 join member m on a.member_id = m.id
                 where a.id = ?
                 """;
@@ -255,7 +255,7 @@ public class ActivityRepository {
             if(rs.next()){
                 ActivityMemberAttendance attendance = new ActivityMemberAttendance();
                 attendance.setId(rs.getString("id"));
-                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("status")));
+                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("attendance_status")));
                 
                 MemberDescription description = new MemberDescription();
                 description.setId(rs.getString("user_id"));
@@ -283,13 +283,13 @@ public class ActivityRepository {
         String query = """
                 select
                     a.id,
-                    a.status,
+                    a.attendance_status,
                     m.id as user_id,
                     m.first_name,
                     m.last_name,
                     m.email,
                     m.occupation
-                from activity_attendance a
+                from activity_member_attendance a
                 join member m on a.member_id = m.id
                 where a.activity_id = ?
                 """;
@@ -304,7 +304,7 @@ public class ActivityRepository {
             while(rs.next()){
                 ActivityMemberAttendance attendance = new ActivityMemberAttendance();
                 attendance.setId(rs.getString("id"));
-                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("status")));
+                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("attendance_status")));
                 
                 MemberDescription description = new MemberDescription();
                 description.setId(rs.getString("user_id"));
@@ -328,7 +328,7 @@ public class ActivityRepository {
 
     public String saveAttendance(AttendanceCreation toSave, String activityId){
         String query = """
-                insert into activity_attendance (member_id, activity_id, status, id)
+                insert into activity_member_attendance (member_id, activity_id, attendance_status, id)
                 values (?, ?, ?::attendance_status, ?)
                 returning id
                 """;
@@ -356,7 +356,7 @@ public class ActivityRepository {
 
     public void updateAttendanceStatus(String attendanceId, AttendanceStatus status){
         String query = """
-                update activity_attendance set status = ?::attendance_status where id = ?
+                update activity_member_attendance set attendance_status = ?::attendance_status where id = ?
                 """;
 
         try(

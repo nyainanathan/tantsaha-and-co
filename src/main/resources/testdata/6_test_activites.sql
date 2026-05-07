@@ -41,7 +41,7 @@ VALUES
   ('ao-15', 'act-c1-5', 'PRESIDENT');
 
 -- Activity attendance
-INSERT INTO activity_attendance (id, member_id, activity_id, status)
+INSERT INTO activity_member_attendance (id, member_id, activity_id, attendance_status)
 VALUES
   -- Assemblée générale col-1 janvier
   ('att-1',  'C1-M1', 'act-c1-1', 'ATTENDED'),
@@ -80,6 +80,6 @@ VALUES
 
 
   -- Dans l'ordre pour respecter les FK
-DELETE FROM activity_attendance;
+DELETE FROM activity_member_attendance;
 DELETE FROM activity_occupation;
 DELETE FROM collectivity_activity;
