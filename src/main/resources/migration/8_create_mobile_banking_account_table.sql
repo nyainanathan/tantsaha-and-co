@@ -18,3 +18,5 @@ create table if not exists "mobile_banking_account"
     mobile_number   varchar,
     collectivity_id varchar references "collectivity" (id)
 );
+
+alter table mobile_banking_account add column amount numeric(10,2);

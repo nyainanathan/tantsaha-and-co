@@ -27,3 +27,5 @@ create table if not exists "bank_account"
     key             integer,
     collectivity_id varchar references "collectivity" (id)
 );
+
+alter table bank_account add column amount numeric(10,2);
