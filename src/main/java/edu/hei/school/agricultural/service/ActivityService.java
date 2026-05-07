@@ -3,9 +3,7 @@ package edu.hei.school.agricultural.service;
 import edu.hei.school.agricultural.controller.dto.ActivityMemberAttendance;
 import edu.hei.school.agricultural.controller.dto.AttendanceCreation;
 import edu.hei.school.agricultural.controller.dto.AttendanceStatus;
-import edu.hei.school.agricultural.entity.Collectivity;
 import edu.hei.school.agricultural.entity.CollectivityActivity;
-import edu.hei.school.agricultural.entity.Member;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.repository.ActivityRepository;
@@ -89,6 +87,19 @@ public class ActivityService {
 
 
         return attendances;
+        
+    }
+
+
+    public List<ActivityMemberAttendance> findAttendance(String collectivityId, String activityId){
+
+        collectivityRepository.findById(collectivityId)
+                        .orElseThrow(() -> new NotFoundException("Collectivity.id= " + collectivityId + " not found"));
+
+        activityRepository.findById(activityId)
+        .orElseThrow(() -> new NotFoundException("Activity.id= " + activityId + " not found"));
+
+        return activityRepository.findAttendanceByActivityId(activityId);
         
     }
 }

@@ -275,6 +275,56 @@ public class ActivityRepository {
         }
     }
 
+    public List<ActivityMemberAttendance> findAttendanceByActivityId(String activityId){
+
+        List<ActivityMemberAttendance> attendances = new ArrayList<>();
+
+        String query = """
+                select
+                    a.id,
+                    a.status,
+                    m.id as user_id,
+                    m.first_name,
+                    m.last_name,
+                    m.email,
+                    m.occupation
+                from activity_attendance u
+                join member m on u.member_id = u.id
+                where a.activity_id = ?
+                """;
+
+        try(
+            PreparedStatement ps = connection.prepareStatement(query);
+        ){
+            ps.setString(1, activityId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                ActivityMemberAttendance attendance = new ActivityMemberAttendance();
+                attendance.setId(rs.getString("id"));
+                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("status")));
+                
+                MemberDescription description = new MemberDescription();
+                description.setId(rs.getString("user_id"));
+                description.setFirstName(rs.getString("first_name"));
+                description.setLastName(rs.getString("last_name"));
+                description.setEmail(rs.getString("email"));
+                description.setOccupation(edu.hei.school.agricultural.controller.dto.MemberOccupation.valueOf(rs.getString("occupation")));
+
+                attendance.setMemberInformation(description);
+
+                attendances.add(attendance);
+            }
+
+            return attendances;
+
+
+        } catch(SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public String saveAttendance(AttendanceCreation toSave, String activityId){
         String query = """
                 insert into activity_attendance (member_id, activity_id, status)
