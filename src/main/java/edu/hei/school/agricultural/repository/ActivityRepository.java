@@ -218,7 +218,7 @@ public class ActivityRepository {
                 description.setEmail(rs.getString("email"));
                 description.setOccupation(edu.hei.school.agricultural.controller.dto.MemberOccupation.valueOf(rs.getString("occupation")));
 
-                attendance.setMemberInformation(description);
+                attendance.setMemberDescription(description);
 
                 return attendance;
             }
@@ -264,7 +264,7 @@ public class ActivityRepository {
                 description.setEmail(rs.getString("email"));
                 description.setOccupation(edu.hei.school.agricultural.controller.dto.MemberOccupation.valueOf(rs.getString("occupation")));
 
-                attendance.setMemberInformation(description);
+                attendance.setMemberDescription(description);
 
                 return attendance;
             }
@@ -313,7 +313,7 @@ public class ActivityRepository {
                 description.setEmail(rs.getString("email"));
                 description.setOccupation(edu.hei.school.agricultural.controller.dto.MemberOccupation.valueOf(rs.getString("occupation")));
 
-                attendance.setMemberInformation(description);
+                attendance.setMemberDescription(description);
 
                 attendances.add(attendance);
             }

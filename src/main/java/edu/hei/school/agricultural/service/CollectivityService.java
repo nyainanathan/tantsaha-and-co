@@ -1,10 +1,13 @@
 package edu.hei.school.agricultural.service;
 
+import edu.hei.school.agricultural.controller.dto.ActivityMemberAttendance;
+import edu.hei.school.agricultural.controller.dto.AttendanceStatus;
 import edu.hei.school.agricultural.controller.dto.CollectivityInformation;
 import edu.hei.school.agricultural.controller.dto.GlobalStats;
 import edu.hei.school.agricultural.entity.*;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
+import edu.hei.school.agricultural.repository.ActivityRepository;
 import edu.hei.school.agricultural.repository.CollectivityRepository;
 import edu.hei.school.agricultural.repository.FinancialAccountRepository;
 import edu.hei.school.agricultural.repository.MemberRepository;
@@ -28,6 +31,7 @@ public class CollectivityService {
     private final MembershipFeeRepository membershipFeeRepository;
     private final FinancialAccountRepository financialAccountRepository;
     private final MemberRepository memberRepository;
+    private final ActivityRepository activityRepository;
 
     public List<Collectivity> createCollectivities(List<Collectivity> collectivities) {
         for (Collectivity collectivity : collectivities) {
@@ -141,6 +145,23 @@ public class CollectivityService {
 
     for (Collectivity collectivity : collectivities) {
 
+        List<CollectivityActivity> activities = activityRepository.findAllByCollectivityId(collectivity.getId())
+                .stream().filter(a -> 
+                    a.getRecurrenceRule() != null || (a.getExecutiveDate().isBefore(to) && a.getExecutiveDate().isAfter(from))
+                )
+                .toList();
+
+        int attendanceExpected = 0;
+        int attendanceGot = 0;
+
+        for(CollectivityActivity activity : activities){
+            List<ActivityMemberAttendance> attendances = activityRepository.findAttendanceByActivityId(activity.getId());
+            attendanceExpected += attendances.size();
+            attendanceGot += attendances.stream()
+            .filter(a -> a.getAttendanceStatus() == AttendanceStatus.ATTENDED)
+            .toList().size();
+        }
+
         List<MembershipFee> fees = membershipFeeRepository
                 .getMembershipFeesByCollectivityId(collectivity.getId())
                 .stream()
@@ -200,6 +221,9 @@ public class CollectivityService {
         stat.setNewMembersNumber(newMembers);
         stat.setOverallMemberCurrentDuePercentage(percentage);
         stats.add(stat);
+        stat.setOverallMemberAssiduityPercentage(
+            ( (double) attendanceGot * 100 ) / (double) attendanceExpected
+        );
     }
 
     return stats;
