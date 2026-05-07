@@ -1,15 +1,19 @@
 package edu.hei.school.agricultural.service;
 
+import edu.hei.school.agricultural.controller.dto.CollectivityInformation;
+import edu.hei.school.agricultural.controller.dto.GlobalStats;
 import edu.hei.school.agricultural.entity.*;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.repository.CollectivityRepository;
 import edu.hei.school.agricultural.repository.FinancialAccountRepository;
+import edu.hei.school.agricultural.repository.MemberRepository;
 import edu.hei.school.agricultural.repository.MembershipFeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -23,6 +27,7 @@ public class CollectivityService {
     private final CollectivityRepository collectivityRepository;
     private final MembershipFeeRepository membershipFeeRepository;
     private final FinancialAccountRepository financialAccountRepository;
+    private final MemberRepository memberRepository;
 
     public List<Collectivity> createCollectivities(List<Collectivity> collectivities) {
         for (Collectivity collectivity : collectivities) {
@@ -128,5 +133,75 @@ public class CollectivityService {
                     throw new IllegalArgumentException("Unknown financial account type " + financialAccount.getClass().getTypeName());
         };
         return paymentMode;
+    }
+
+    public List<GlobalStats> findGlobalStats(LocalDate from, LocalDate to){
+
+        List<Collectivity> collectivities = collectivityRepository.findALl();
+        List<GlobalStats> stats = new ArrayList<>();
+
+        for(Collectivity collectivity : collectivities){
+
+            List<MembershipFee> fees = membershipFeeRepository.getMembershipFeesByCollectivityId(collectivity.getId())
+                                        .stream().filter(c -> 
+                                            c.getEligibleFrom().isBefore(to)
+                                        ).toList();
+            ;
+
+            List<Member> members = memberRepository.findAllByCollectivity(collectivity);
+
+            double totalFee = 0;
+
+            for(MembershipFee fee : fees){
+
+                LocalDate startDate = fee.getEligibleFrom();
+
+                while(startDate.isBefore(to)){
+
+                    if((startDate.isBefore(to) && startDate.isAfter(from)) || startDate.equals(to) || startDate.equals(from) ){
+                        totalFee += fee.getAmount();
+                    }
+
+                    if(fee.getFrequency() == Frequency.ANNUALLY){
+                        startDate = startDate.plusYears(1);
+                    } else if(fee.getFrequency() == Frequency.MONTHLY){
+                        startDate = startDate.plusMonths(1);
+                    } else if(fee.getFrequency() == Frequency.WEEKLY){
+                        startDate = startDate.plusWeeks(1);
+                    } else {
+                        break;
+                    }
+
+                }
+
+            }
+
+            int totalMember = members.size();
+            int thoseWhoAreNotLate = 0;
+
+            for(Member m : members){
+                double getTotalPaid = memberRepository.findTotalPaid(m.getId(), from, to);
+                if(getTotalPaid >= totalFee){
+                    thoseWhoAreNotLate++;
+                }
+            }
+
+
+
+            double percentage = (thoseWhoAreNotLate * totalMember) / 100;
+            int newMembers = collectivityRepository.findNewMembers(collectivity.getId(), from, to);
+
+            GlobalStats stat = new GlobalStats();
+            stat.setCollectivityInformation(new CollectivityInformation(
+                collectivity.getName(),
+                collectivity.getNumber()
+            ));
+            stat.setNewMembersNumber(newMembers);
+            stat.setOverallMemberCurrentDuePercentage(percentage);
+
+            stats.add(stat);
+        }
+
+        return stats;
     }
 }

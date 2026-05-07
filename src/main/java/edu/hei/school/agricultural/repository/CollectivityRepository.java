@@ -4,9 +4,11 @@ import edu.hei.school.agricultural.entity.Collectivity;
 import edu.hei.school.agricultural.entity.CollectivityStructure;
 import edu.hei.school.agricultural.mapper.CollectivityMapper;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +59,50 @@ public class CollectivityRepository {
         return memberList;
     }
 
+    public List<Collectivity> findALl(){
+        List<Collectivity> collectivities = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement("""
+                select id, name, number, location, president_id, vice_president_id, treasurer_id, secretary_id
+                from "collectivity"
+                """)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            
+            while (resultSet.next()) {
+                collectivities.add(collectivityMapper.mapFromResultSet(resultSet));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return collectivities;
+    }
+
+    public int findNewMembers(String collectivityId, LocalDate from, LocalDate to){
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement("""
+                select count(id) as new_member_count
+                from collectivity_member
+                where collectivity_id = ?
+                and adhesion_date >= ?
+                and adhesion_date <= ?
+                """)) {
+
+                    preparedStatement.setString(1, collectivityId);
+                    preparedStatement.setDate(2, java.sql.Date.valueOf(from));
+                    preparedStatement.setDate(3, java.sql.Date.valueOf(to));
+
+                    ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                resultSet.getInt("new_member_count");
+            }
+
+            return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     public boolean isNumberExists(Integer number) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("""

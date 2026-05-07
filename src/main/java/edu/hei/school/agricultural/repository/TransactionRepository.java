@@ -17,7 +17,6 @@ public class TransactionRepository {
     private final Connection connection;
     private final MemberRepository memberRepository;
     private final FinancialAccountMapper financialAccountMapper;
-    private final FinancialAccountRepository financialAccountRepository;
 
     public List<Transaction> saveAll(List<Transaction> transactionList) {
         List<Transaction> savedTransactions = new ArrayList<Transaction>();

@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -153,5 +154,29 @@ public class MemberRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public double findTotalPaid(String idMember, LocalDate from, LocalDate to){
+        try(PreparedStatement ps = connection.prepareStatement("""
+                SELECT SUM(amount) as total_paid
+                FROM member_payment
+                WHERE member_debited_id = ?
+                AND creation_date >= ?
+                AND creation_date <= ?
+                """)){
+                    ps.setString(1,idMember);
+                    ps.setDate(2, java.sql.Date.valueOf(from));
+                    ps.setDate(3, java.sql.Date.valueOf(to));
+
+                    ResultSet rs = ps.executeQuery();
+
+                    if(rs.next()){
+                        return rs.getDouble("total_paid");
+                    } else {
+                        return 0d;
+                    }
+                }catch(SQLException e){
+                    throw new RuntimeException(e);
+                }
     }
 }

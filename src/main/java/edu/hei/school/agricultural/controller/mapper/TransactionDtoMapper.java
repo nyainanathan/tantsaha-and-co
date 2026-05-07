@@ -5,7 +5,6 @@ import edu.hei.school.agricultural.controller.dto.PaymentMode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import static java.time.LocalDate.now;
 
 @Component
 @RequiredArgsConstructor
