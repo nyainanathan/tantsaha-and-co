@@ -80,7 +80,7 @@ public class ActivityController {
     @GetMapping("/collectivities/{id}/activities{activityId}/attendance")
     public ResponseEntity<?> findAttendance(
         @PathVariable(name = "id") String collectivityId,
-        @PathVariable(name = "activityId") String activityId,
+        @PathVariable(name = "activityId") String activityId
     ){
         try {
             return ResponseEntity.status(CREATED)
