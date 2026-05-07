@@ -1,5 +1,9 @@
 package edu.hei.school.agricultural.repository;
 
+import edu.hei.school.agricultural.controller.dto.ActivityMemberAttendance;
+import edu.hei.school.agricultural.controller.dto.AttendanceCreation;
+import edu.hei.school.agricultural.controller.dto.AttendanceStatus;
+import edu.hei.school.agricultural.controller.dto.MemberDescription;
 import edu.hei.school.agricultural.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -86,7 +90,7 @@ public class ActivityRepository {
         return result;
     }
 
-    private Optional<CollectivityActivity> findById(String id) {
+    public Optional<CollectivityActivity> findById(String id) {
         String sql = """
                 select id, label, activity_type, recurrence_week, recurrence_day, executive_date, collectivity_id
                 from "collectivity_activity"
@@ -176,4 +180,144 @@ public class ActivityRepository {
                 .collectivityId(rs.getString("collectivity_id"))
                 .build();
     }
+
+    public ActivityMemberAttendance findAttendance(String activityId, String memberId){
+        String query = """
+                select
+                    a.id,
+                    a.status,
+                    m.id as user_id,
+                    m.first_name,
+                    m.last_name,
+                    m.email,
+                    m.occupation
+                from activity_attendance u
+                join member m on u.member_id = u.id
+                where a.activity_id = ?
+                and a.member_id = ?
+                """;
+
+        try(
+            PreparedStatement ps = connection.prepareStatement(query);
+        ){
+            ps.setString(1, activityId);
+            ps.setString(2, memberId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                ActivityMemberAttendance attendance = new ActivityMemberAttendance();
+                attendance.setId(rs.getString("id"));
+                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("status")));
+                
+                MemberDescription description = new MemberDescription();
+                description.setId(rs.getString("user_id"));
+                description.setFirstName(rs.getString("first_name"));
+                description.setLastName(rs.getString("last_name"));
+                description.setEmail(rs.getString("email"));
+                description.setOccupation(edu.hei.school.agricultural.controller.dto.MemberOccupation.valueOf(rs.getString("occupation")));
+
+                attendance.setMemberInformation(description);
+
+                return attendance;
+            }
+
+
+            return null;
+        } catch(SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ActivityMemberAttendance findAttendanceById(String attendanceId){
+        String query = """
+                select
+                    a.id,
+                    a.status,
+                    m.id as user_id,
+                    m.first_name,
+                    m.last_name,
+                    m.email,
+                    m.occupation
+                from activity_attendance u
+                join member m on u.member_id = u.id
+                where a.id = ?
+                """;
+
+        try(
+            PreparedStatement ps = connection.prepareStatement(query);
+        ){
+            ps.setString(1, attendanceId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                ActivityMemberAttendance attendance = new ActivityMemberAttendance();
+                attendance.setId(rs.getString("id"));
+                attendance.setAttendanceStatus(AttendanceStatus.valueOf(rs.getString("status")));
+                
+                MemberDescription description = new MemberDescription();
+                description.setId(rs.getString("user_id"));
+                description.setFirstName(rs.getString("first_name"));
+                description.setLastName(rs.getString("last_name"));
+                description.setEmail(rs.getString("email"));
+                description.setOccupation(edu.hei.school.agricultural.controller.dto.MemberOccupation.valueOf(rs.getString("occupation")));
+
+                attendance.setMemberInformation(description);
+
+                return attendance;
+            }
+
+
+            return null;
+        } catch(SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String saveAttendance(AttendanceCreation toSave, String activityId){
+        String query = """
+                insert into activity_attendance (member_id, activity_id, status)
+                values (?, ?, ?::attendance_status)
+                returning id
+                """;
+        
+        try(
+            PreparedStatement ps = connection.prepareStatement(query)
+        ){
+            ps.setString(1, toSave.getMemberIdentifier());
+            ps.setString(2, activityId);
+            ps.setString(3, toSave.getAttendanceStatus().name());
+
+            ResultSet rs =  ps.executeQuery();
+
+            if(rs.next()){
+                return rs.getString("id");
+            }
+
+            return null;
+
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateAttendanceStatus(String attendanceId, AttendanceStatus status){
+        String query = """
+                update activity_attendance set status = ?::attendance_status where id = ?
+                """;
+
+        try(
+            PreparedStatement ps = connection.prepareStatement(query)
+        ){
+            ps.setString(1, status.toString());
+            ps.setString(2, attendanceId);
+
+            ps.executeUpdate();
+
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
 }
