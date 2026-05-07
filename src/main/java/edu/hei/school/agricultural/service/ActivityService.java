@@ -43,4 +43,6 @@ public class ActivityService {
 
         return activityRepository.findAllByCollectivityId(collectivityId);
     }
+
+    public 
 }
