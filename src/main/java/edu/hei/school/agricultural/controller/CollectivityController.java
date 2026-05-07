@@ -12,7 +12,10 @@ import edu.hei.school.agricultural.entity.MembershipFee;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.service.CollectivityService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +34,15 @@ public class CollectivityController {
     private final FinancialAccountDtoMapper financialAccountDtoMapper;
     private final TransactionDtoMapper transactionDtoMapper;
 
+    @Value("${api.key}")
+    private String apiKey;
+
     @GetMapping("/collectivities/{id}")
-    public ResponseEntity<?> getCollectivityById(@PathVariable String id) {
+    public ResponseEntity<?> getCollectivityById(@PathVariable String id, HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(OK).body(collectivityDtoMapper.mapToDto(collectivityService.getCollectivityById(id)));
         } catch (BadRequestException e) {
             return ResponseEntity.status(BAD_REQUEST)
@@ -49,8 +58,11 @@ public class CollectivityController {
     }
 
     @PostMapping("/collectivities")
-    public ResponseEntity<?> createCollectivity(@RequestBody List<CreateCollectivity> createCollectivities) {
+    public ResponseEntity<?> createCollectivity(@RequestBody List<CreateCollectivity> createCollectivities, HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             List<Collectivity> collectivities = createCollectivities.stream()
                     .map(collectivityDtoMapper::mapToEntity)
                     .toList();
@@ -74,10 +86,15 @@ public class CollectivityController {
 
     @PutMapping("/collectivities/{id}/informations")
     public ResponseEntity<?> updateCollectivityInformation(@PathVariable String id,
-                                                           @RequestBody CollectivityInformation collectivityInformation) {
+                                                           @RequestBody CollectivityInformation collectivityInformation,
+                                                           HttpServletRequest request
+                                                        ) {
         String name = collectivityInformation.getName();
         Integer number = collectivityInformation.getNumber();
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(OK)
                     .body(collectivityDtoMapper.mapToDto(collectivityService.updateInformations(id, name, number)));
         } catch (BadRequestException e) {
@@ -93,8 +110,11 @@ public class CollectivityController {
     }
 
     @GetMapping("/collectivities/{id}/membershipFees")
-    public ResponseEntity<?> getCollectivityMembershipFeesByCollectivity(@PathVariable String id) {
+    public ResponseEntity<?> getCollectivityMembershipFeesByCollectivity(@PathVariable String id, HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(OK)
                     .body(collectivityService.getMembershipFeesByCollectivityIdentifier(id).stream()
                             .map(membershipFeeDtoMapper::mapToDto)
@@ -114,8 +134,13 @@ public class CollectivityController {
     @PostMapping("/collectivities/{id}/membershipFees")
     public ResponseEntity<?> createCollectivityMembershipFee(
             @PathVariable String id,
-            @RequestBody List<CreateMembershipFee> membershipFees) {
+            @RequestBody List<CreateMembershipFee> membershipFees,
+            HttpServletRequest request
+        ) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             List<MembershipFee> membershipFeesToCreate = membershipFees.stream()
                     .map(membershipFeeDtoMapper::mapToEntity)
                     .toList();
@@ -137,8 +162,12 @@ public class CollectivityController {
 
     @GetMapping("/collectivities/{id}/financialAccounts")
     public ResponseEntity<?> getCollectivityFinancialAccounts(@PathVariable String id,
-                                                              @RequestParam(required = false) LocalDate at) {
+                                                              @RequestParam(required = false) LocalDate at,
+                                                            HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(OK)
                     .body(collectivityService.getFinancialAccounts(id).stream()
                             .map(financialAccount -> financialAccountDtoMapper.mapToDto(financialAccount, at))
@@ -156,8 +185,11 @@ public class CollectivityController {
     }
 
     @GetMapping("/collectivities/{id}/transactions")
-    public ResponseEntity<?> getCollectivityTransactions(@PathVariable String id, @RequestParam LocalDate from, @RequestParam LocalDate to) {
+    public ResponseEntity<?> getCollectivityTransactions(@PathVariable String id, @RequestParam LocalDate from, @RequestParam LocalDate to, HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(OK)
                     .body(collectivityService.getTransactionsByCollectivity(id, from, to).stream()
                             .map(transactionDtoMapper::mapToDto)
@@ -175,8 +207,11 @@ public class CollectivityController {
     }
 
   @GetMapping("/collectivities/statistics")
-    public ResponseEntity<?> getCollectiesStats(@RequestParam LocalDate from, @RequestParam LocalDate to) {
+    public ResponseEntity<?> getCollectiesStats(@RequestParam LocalDate from, @RequestParam LocalDate to, HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(OK)
                     .body(collectivityService.findGlobalStats(from, to));
         } catch (BadRequestException e) {

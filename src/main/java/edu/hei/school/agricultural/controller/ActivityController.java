@@ -6,7 +6,10 @@ import edu.hei.school.agricultural.controller.mapper.ActivityDtoMapper;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.service.ActivityService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +25,17 @@ public class ActivityController {
     private final ActivityService activityService;
     private final ActivityDtoMapper activityDtoMapper;
 
+    @Value("${api.key}")
+    private String apiKey;
+
     @PostMapping("/collectivities/{id}/activities")
     public ResponseEntity<?> createActivities(@PathVariable String id,
-                                              @RequestBody List<ActivityDto.CreateCollectivityActivity> createActivities) {
+                                              @RequestBody List<ActivityDto.CreateCollectivityActivity> createActivities,
+                                            HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(OK)
                     .body(activityService.createActivities(id,
                                     createActivities.stream()
@@ -44,8 +54,11 @@ public class ActivityController {
     }
 
     @GetMapping("/collectivities/{id}/activities")
-    public ResponseEntity<?> getActivities(@PathVariable String id) {
+    public ResponseEntity<?> getActivities(@PathVariable String id, HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(OK)
                     .body(activityService.getActivities(id).stream()
                             .map(activityDtoMapper::mapToDto)
@@ -61,9 +74,13 @@ public class ActivityController {
     public ResponseEntity<?> saveAttendance(
         @PathVariable(name = "id") String collectivityId,
         @PathVariable(name = "activityId") String activityId,
-        @RequestBody List<AttendanceCreation> toSave
+        @RequestBody List<AttendanceCreation> toSave,
+        HttpServletRequest request
     ){
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(CREATED)
                     .body(
                         activityService.saveAttendance(collectivityId, activityId, toSave)
@@ -80,9 +97,13 @@ public class ActivityController {
     @GetMapping("/collectivities/{id}/activities/{activityId}/attendance")
     public ResponseEntity<?> findAttendance(
         @PathVariable(name = "id") String collectivityId,
-        @PathVariable(name = "activityId") String activityId
+        @PathVariable(name = "activityId") String activityId,
+        HttpServletRequest request
     ){
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
             return ResponseEntity.status(CREATED)
                     .body(
                         activityService.findAttendance(collectivityId, activityId)

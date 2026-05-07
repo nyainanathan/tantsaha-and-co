@@ -9,7 +9,10 @@ import edu.hei.school.agricultural.entity.MemberPayment;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,9 +32,18 @@ public class MemberController {
     private final MemberDtoMapper memberDtoMapper;
     private final MemberPaymentDtoMaper memberPaymentDtoMaper;
 
+    @Value("${api.key}")
+    private String apiKey;
+    
+
     @PostMapping("/members")
-    public ResponseEntity<?> createMembers(@RequestBody List<CreateMember> createMemberDtos) {
+    public ResponseEntity<?> createMembers(@RequestBody List<CreateMember> createMemberDtos, HttpServletRequest request) {
         try {
+
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
+
             List<Member> convertedCreateMembers = createMemberDtos.stream()
                     .map(memberDtoMapper::mapToEntity)
                     .toList();
@@ -55,8 +67,14 @@ public class MemberController {
     }
 
     @PostMapping("/members/{id}/payments")
-    public ResponseEntity<?> createMemberPayments(@PathVariable String id, @RequestBody List<CreateMemberPayment> createMemberPayments) {
+    public ResponseEntity<?> createMemberPayments(@PathVariable String id, 
+        @RequestBody List<CreateMemberPayment> createMemberPayments,
+        HttpServletRequest request) {
         try {
+            if (!apiKey.equals(request.getHeader("x-api-key"))) {
+                return ResponseEntity.status(401).body("Bad credentials");
+            }
+
             List<MemberPayment> memberPayments = createMemberPayments.stream()
                     .map(createMemberPayment -> memberPaymentDtoMaper.mapToEntity(id, createMemberPayment))
                     .toList();
