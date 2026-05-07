@@ -288,8 +288,8 @@ public class ActivityRepository {
                     m.last_name,
                     m.email,
                     m.occupation
-                from activity_attendance u
-                join member m on u.member_id = u.id
+                from activity_attendance a
+                join member m on a.member_id = m.id
                 where a.activity_id = ?
                 """;
 
