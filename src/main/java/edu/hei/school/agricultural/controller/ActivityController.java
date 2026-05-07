@@ -36,7 +36,7 @@ public class ActivityController {
             if (!apiKey.equals(request.getHeader("x-api-key"))) {
                 return ResponseEntity.status(401).body("Bad credentials");
             }
-            return ResponseEntity.status(OK)
+            return ResponseEntity.status(CREATED)
                     .body(activityService.createActivities(id,
                                     createActivities.stream()
                                             .map(activityDtoMapper::mapToEntity)
