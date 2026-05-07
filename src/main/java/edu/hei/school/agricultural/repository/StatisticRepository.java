@@ -101,22 +101,22 @@ public class StatisticRepository {
 
         String sql = """
                 SELECT
-                    cm.member_id,
-                    100.0 * SUM(CASE WHEN ama.attendance_status = 'ATTENDED' THEN 1 ELSE 0 END)
-                    / NULLIF(COUNT(ca.id), 0) AS assiduity_percentage
+                    cm.member_id                                            AS member_id,
+                    COUNT(DISTINCT ca.id)                                   AS total_required,
+                    COUNT(DISTINCT CASE
+                        WHEN ama.attendance_status = 'ATTENDED'
+                        THEN ca.id
+                    END)                                                    AS attended_count
                 FROM collectivity_member cm
-                JOIN collectivity_activity ca
-                    ON ca.collectivity_id = cm.collectivity_id
-                    AND ca.executive_date BETWEEN ? AND ?
-                JOIN "member" m
-                    ON m.id = cm.member_id
-                LEFT JOIN activity_occupation ao
-                    ON ao.activity_id = ca.id
+                JOIN member m               ON m.id              = cm.member_id
+                JOIN collectivity_activity ca ON ca.collectivity_id = cm.collectivity_id
+                                             AND ca.executive_date BETWEEN ? AND ?
+                JOIN activity_occupation ao ON ao.activity_id    = ca.id
+                                           AND ao.occupation      = m.occupation::member_occupation
                 LEFT JOIN activity_member_attendance ama
-                    ON ama.activity_id = ca.id
-                    AND ama.member_id = cm.member_id
+                                            ON ama.activity_id   = ca.id
+                                           AND ama.member_id      = cm.member_id
                 WHERE cm.collectivity_id = ?
-                  AND (ao.activity_id IS NULL OR ao.occupation = m.occupation)
                 GROUP BY cm.member_id
                 """;
 
@@ -127,11 +127,10 @@ public class StatisticRepository {
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                double percent = rs.getDouble("assiduity_percentage");
-                result.put(
-                        rs.getString("member_id"),
-                        rs.wasNull() ? null : percent
-                );
+                int total = rs.getInt("total_required");
+                int attended = rs.getInt("attended_count");
+                double percentage = total == 0 ? 0.0 : (attended * 100.0) / total;
+                result.put(rs.getString("member_id"), rs.wasNull() ? null : percentage);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
