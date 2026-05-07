@@ -2,6 +2,7 @@ package edu.hei.school.agricultural.service;
 
 import edu.hei.school.agricultural.entity.Collectivity;
 import edu.hei.school.agricultural.entity.CollectivityLocalStatistic;
+import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.repository.CollectivityRepository;
 import edu.hei.school.agricultural.repository.MemberRepository;
@@ -24,6 +25,11 @@ public class StatisticService {
     public List<CollectivityLocalStatistic> getLocalStatistics(String collectivityId,
                                                                LocalDate from,
                                                                LocalDate to) {
+
+        if(from == null || to == null){
+                throw new BadRequestException("Mandatory query parameteres not provided or malformed");
+        }
+
         Collectivity collectivity = collectivityRepository.findById(collectivityId)
                 .orElseThrow(() -> new NotFoundException("Collectivity.id= " + collectivityId + " not found"));
 

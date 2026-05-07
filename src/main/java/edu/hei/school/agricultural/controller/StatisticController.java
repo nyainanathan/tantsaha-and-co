@@ -34,8 +34,8 @@ public class StatisticController {
 
     @GetMapping("/collectivities/{id}/statistics")
     public ResponseEntity<?> getLocalStatistics(@PathVariable String id,
-                                                @RequestParam LocalDate from,
-                                                @RequestParam LocalDate to,
+                                                @RequestParam(required = false) LocalDate from,
+                                                @RequestParam(required = false) LocalDate to,
                                             HttpServletRequest request) {
         try {
             
